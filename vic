@@ -1,0 +1,1456 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Westcor Energy — Platform</title>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@300;400;500;600&family=Inter:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --accent-wc: #1B3A5C; --accent-2-wc: #2D5F8A; --border-wc: #E5E3DB;
+  --text-wc: #1A1916; --text-2-wc: #5C5A54; --text-3-wc: #9B9890;
+  --red-wc: #C0392B; --radius-sm-wc: 6px;
+}
+#login-screen { position:fixed;inset:0;display:flex;align-items:center;justify-content:center;z-index:1000;background:#eef1f5; }
+#login-screen.hidden { display:none; }
+.wc-right { background:#fff;border-radius:12px;box-shadow:0 8px 40px rgba(0,0,0,.13);padding:44px 48px;width:100%;max-width:420px; }
+.wc-brand { margin-bottom:36px;text-align:center; }
+.wc-brand-name { font-family:'Instrument Serif',serif;font-size:1.5rem;color:var(--accent-wc);letter-spacing:.3px; }
+.wc-brand-sub { font-size:.68rem;color:var(--text-3-wc);letter-spacing:2.5px;text-transform:uppercase;margin-top:4px; }
+.wc-form-title { font-family:'Instrument Serif',serif;font-size:1.9rem;color:var(--text-wc);margin-bottom:5px; }
+.wc-form-sub { font-size:.84rem;color:var(--text-3-wc);margin-bottom:34px; }
+.wc-field { margin-bottom:18px; }
+.wc-field label { display:block;font-size:.7rem;font-weight:600;letter-spacing:1.2px;text-transform:uppercase;color:var(--text-2-wc);margin-bottom:7px; }
+.wc-field input { width:100%;border:1.5px solid var(--border-wc);border-radius:var(--radius-sm-wc);padding:11px 14px;font-family:'Geist',sans-serif;font-size:.92rem;color:var(--text-wc);background:#fff;outline:none;transition:border-color .18s,box-shadow .18s; }
+.wc-field input:focus { border-color:var(--accent-wc);box-shadow:0 0 0 3px rgba(27,58,92,.09); }
+.wc-submit { width:100%;background:var(--accent-wc);color:#fff;border:none;border-radius:var(--radius-sm-wc);padding:13px;font-family:'Geist',sans-serif;font-size:.9rem;font-weight:600;cursor:pointer;margin-top:4px;transition:background .18s; }
+.wc-submit:hover { background:var(--accent-2-wc); }
+.wc-error { font-size:.8rem;color:var(--red-wc);text-align:center;margin-top:12px;display:none; }
+.wc-links-row { display:flex;justify-content:space-between;align-items:center;margin-top:16px; }
+.wc-link-muted { font-size:.78rem;color:var(--text-3-wc);text-decoration:none; }
+.wc-link-muted:hover { color:var(--accent-wc); }
+.wc-link-accent { font-size:.78rem;color:var(--accent-wc);font-weight:500;text-decoration:none; }
+
+*,*::before,*::after { box-sizing:border-box;margin:0;padding:0; }
+body { font-family:'Inter',sans-serif;background:#f9fafb;color:#1a1f2e;font-size:13.5px;-webkit-font-smoothing:antialiased; }
+a { color:#1a5fd4;text-decoration:none; }
+button { font-family:'Inter',sans-serif; }
+#app { display:none;flex-direction:column;min-height:100vh; }
+#app.visible { display:flex; }
+
+.topnav { background:#fff;border-bottom:1px solid #e5e7eb;padding:0 28px;height:52px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 1px 2px rgba(0,0,0,.05); }
+.nav-brand { font-family:'Instrument Serif',serif;font-size:16px;color:#1B3A5C; }
+.nav-tabs { display:flex;gap:1px; }
+.nav-tab { padding:6px 15px;border-radius:5px;font-size:13px;font-weight:500;color:#6b7280;cursor:pointer;transition:all .12s;border:none;background:none; }
+.nav-tab:hover { background:#f3f4f6;color:#1a1f2e; }
+.nav-tab.active { background:#eff4ff;color:#1a5fd4;font-weight:600; }
+.nav-right { display:flex;align-items:center;gap:10px; }
+.nav-right>span { font-size:13px;color:#6b7280;font-weight:500; }
+.nav-avatar { width:30px;height:30px;border-radius:50%;background:#1B3A5C;color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700; }
+.logout-btn { font-size:12px;color:#9ca3af;background:none;border:none;cursor:pointer;padding:4px 8px;border-radius:5px; }
+.logout-btn:hover { color:#1a5fd4;background:#eff4ff; }
+
+.main { padding:24px 28px;max-width:1480px;margin:0 auto;width:100%; }
+.page { display:none; }
+.page.active { display:block; }
+
+.card { background:#fff;border-radius:7px;border:1px solid #e5e7eb;box-shadow:0 1px 3px rgba(0,0,0,.08);margin-bottom:14px;overflow:hidden; }
+.card-header { padding:13px 20px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #e5e7eb; }
+.card-header h3 { font-size:13.5px;font-weight:600;color:#1a1f2e; }
+.card-body { padding:20px; }
+.collapse-btn { background:none;border:none;cursor:pointer;color:#9ca3af;font-size:16px;line-height:1; }
+
+.stats-row { display:grid;gap:12px;margin-bottom:18px; }
+.s4 { grid-template-columns:repeat(4,1fr); }
+.s5 { grid-template-columns:repeat(5,1fr); }
+.stat-card { background:#fff;border-radius:7px;border:1px solid #e5e7eb;padding:18px 20px;box-shadow:0 1px 3px rgba(0,0,0,.08); }
+.stat-label { font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.6px;color:#9ca3af;margin-bottom:7px; }
+.stat-val { font-size:26px;font-weight:700;line-height:1;letter-spacing:-.5px;color:#1a1f2e; }
+.stat-sub { font-size:11.5px;color:#9ca3af;margin-top:5px; }
+.stat-delta { font-size:11.5px;font-weight:500;margin-top:5px; }
+.d-up { color:#16a34a; } .d-dn { color:#991b1b; } .d-warn { color:#92400e; }
+
+.tbl-wrap { overflow-x:auto; }
+table { width:100%;border-collapse:collapse; }
+th { padding:9px 16px;text-align:left;font-size:11px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.6px;border-bottom:1px solid #e5e7eb;background:#f9fafb;white-space:nowrap; }
+td { padding:11px 16px;border-bottom:1px solid #e5e7eb;font-size:13px;vertical-align:middle;color:#374151; }
+tr:last-child td { border-bottom:none; }
+tr:hover td { background:#f9fafb; }
+.fw { font-weight:600;color:#1a1f2e; }
+
+.badge { display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:600;white-space:nowrap; }
+.badge::before { content:'';width:5px;height:5px;border-radius:50%;flex-shrink:0; }
+.b-active { background:#f0fdf4;color:#16a34a;border:1px solid #bbf7d0; } .b-active::before { background:#16a34a; }
+.b-pending { background:#fefce8;color:#713f12;border:1px solid #fde68a; } .b-pending::before { background:#ca8a04; }
+.b-warn { background:#fef3c7;color:#92400e;border:1px solid #fcd34d; } .b-warn::before { background:#d97706; }
+.b-declined { background:#fff1f1;color:#991b1b;border:1px solid #fca5a5; } .b-declined::before { background:#991b1b; }
+.b-neutral { background:#f3f4f6;color:#6b7280;border:1px solid #e5e7eb; } .b-neutral::before { background:#9ca3af; }
+.b-info { background:#eff4ff;color:#1a5fd4;border:1px solid #bfdbfe; } .b-info::before { background:#1a5fd4; }
+
+.achip { display:inline-flex;align-items:center;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;font-family:'DM Mono',monospace; }
+.ac-urgent { background:#fff1f1;color:#991b1b;border:1px solid #fca5a5; }
+.ac-soon { background:#fef3c7;color:#92400e;border:1px solid #fcd34d; }
+.ac-ok { color:#9ca3af; }
+
+.rate { font-family:'DM Mono',monospace;font-size:13px;font-weight:500; }
+.r-default { color:#1a5fd4;cursor:pointer; } .r-default:hover { opacity:.75; }
+.r-best { color:#16a34a;cursor:pointer; } .r-best:hover { opacity:.75; }
+.r-empty { color:#d1d5db;font-size:12px; }
+
+.btn { padding:7px 16px;border-radius:5px;font-family:'Inter',sans-serif;font-size:13px;font-weight:500;cursor:pointer;transition:all .12s;border:none;display:inline-flex;align-items:center;gap:5px; }
+.btn-primary { background:#1a5fd4;color:#fff; } .btn-primary:hover { background:#1450b8; }
+.btn-outline { background:#fff;color:#1a5fd4;border:1px solid #1a5fd4; } .btn-outline:hover { background:#eff4ff; }
+.btn-ghost { background:#fff;color:#374151;border:1px solid #d1d5db; } .btn-ghost:hover { border-color:#6b7280;color:#1a1f2e; }
+.btn-confirm { background:#16a34a;color:#fff; } .btn-confirm:hover { background:#15803d; }
+.btn-sm { padding:5px 11px;font-size:12px; }
+
+.inp { width:100%;padding:7px 11px;border:1px solid #d1d5db;border-radius:5px;font-family:'Inter',sans-serif;font-size:13px;color:#1a1f2e;outline:none;transition:border-color .15s,box-shadow .15s;background:#fff; }
+.inp:focus { border-color:#1a5fd4;box-shadow:0 0 0 3px rgba(26,95,212,.1); }
+.inp-sel { appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='11' viewBox='0 0 24 24' fill='none' stroke='%239ca3af' stroke-width='2.5'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 9px center;padding-right:28px; }
+
+.toolbar { display:flex;align-items:center;justify-content:space-between;padding:13px 20px;border-bottom:1px solid #e5e7eb;flex-wrap:wrap;gap:10px; }
+.srch { position:relative; }
+.srch-ic { position:absolute;left:9px;top:50%;transform:translateY(-50%);color:#9ca3af;pointer-events:none;font-size:13px; }
+.sec-head { display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:18px; }
+.sec-head h2 { font-size:18px;font-weight:700;letter-spacing:-.4px;color:#1a1f2e; }
+.sec-head p { font-size:12.5px;color:#9ca3af;margin-top:3px; }
+.av { width:28px;height:28px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:10.5px;font-weight:700;flex-shrink:0;background:#f3f4f6;color:#6b7280;border:1px solid #e5e7eb; }
+.sup-cell { display:flex;align-items:center;padding-left:4px; }
+.l-apge { font-size:12.5px;font-weight:800;color:#374151;letter-spacing:-.2px; }
+.l-hudson { font-size:12px;font-weight:700;color:#374151; }
+.l-engie { font-size:13px;font-weight:800;color:#374151;letter-spacing:.5px; }
+.l-fp { font-size:12px;font-weight:700;color:#374151; }
+.l-gexa { font-size:12px;font-weight:700;color:#374151; }
+.l-nrg { font-size:13px;font-weight:800;color:#374151;letter-spacing:-.3px; }
+
+.overlay { display:none;position:fixed;inset:0;background:rgba(15,23,42,.6);z-index:200;align-items:flex-start;justify-content:center;padding:40px 20px;overflow-y:auto; }
+.overlay.open { display:flex; }
+.modal { background:#fff;border-radius:11px;width:100%;box-shadow:0 20px 50px rgba(0,0,0,.22);overflow:hidden;margin-bottom:40px; }
+.modal-sm { max-width:480px; } .modal-md { max-width:680px; } .modal-lg { max-width:1060px; }
+.modal-header { padding:16px 24px;border-bottom:1px solid #e5e7eb;display:flex;align-items:center;justify-content:space-between; }
+.modal-header h2 { font-size:15px;font-weight:700;color:#1a1f2e; }
+.modal-close { background:none;border:none;font-size:20px;color:#9ca3af;cursor:pointer;line-height:1; }
+.modal-body { padding:24px; }
+.modal-footer { padding:14px 24px;border-top:1px solid #e5e7eb;background:#f9fafb;display:flex;justify-content:flex-end;gap:8px; }
+.fg { display:grid;gap:15px; } .f2 { grid-template-columns:1fr 1fr; }
+.fg>div>label { display:block;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.4px;color:#9ca3af;margin-bottom:5px; }
+
+.offer-banner { background:#f9fafb;border-bottom:1px solid #e5e7eb;padding:8px 24px;display:flex;align-items:center;justify-content:space-between;font-size:12.5px;color:#6b7280; }
+.offer-banner strong { color:#374151;font-weight:600; }
+.offer-meta { display:grid;grid-template-columns:repeat(4,1fr);padding:14px 24px;border-bottom:1px solid #e5e7eb; }
+.om-item { padding:0 16px;border-right:1px solid #e5e7eb; }
+.om-item:first-child { padding-left:0; } .om-item:last-child { border-right:none; }
+.om-item label { font-size:10.5px;text-transform:uppercase;letter-spacing:.5px;color:#9ca3af;display:block;margin-bottom:3px;font-weight:600; }
+.om-item .mv { font-size:13.5px;font-weight:600;color:#1a1f2e; }
+.offer-meta2 { display:grid;grid-template-columns:repeat(3,1fr);padding:11px 24px;border-bottom:1px solid #e5e7eb; }
+.om2-item label { font-size:10.5px;text-transform:uppercase;letter-spacing:.5px;color:#9ca3af;display:block;margin-bottom:3px;font-weight:600; }
+.om2-item .mv { font-size:13px;font-weight:600;color:#1a1f2e; }
+.sel-all-row { padding:11px 24px;border-bottom:1px solid #e5e7eb; }
+.btn-sel-all { padding:5px 14px;border:1px solid #d1d5db;background:#fff;border-radius:5px;font-family:'Inter',sans-serif;font-size:12.5px;color:#374151;cursor:pointer; }
+.btn-sel-all:hover { border-color:#1a5fd4;color:#1a5fd4; }
+.cb-cell { width:40px; } .pcb { width:15px;height:15px;cursor:pointer;accent-color:#1a5fd4; }
+.inputs-grid { display:grid;grid-template-columns:140px 1fr 1fr 1fr 1fr 1fr;gap:14px;margin-bottom:14px; }
+.row2 { display:grid;grid-template-columns:140px 1fr 1fr 1fr 1fr 1fr;gap:14px; }
+.ig label { display:block;font-size:11px;font-weight:600;color:#9ca3af;margin-bottom:5px;text-transform:uppercase;letter-spacing:.4px; }
+.acts-row { display:flex;justify-content:flex-end;gap:8px;margin-top:16px; }
+.view-sample { font-size:12px;color:#1a5fd4;display:block;margin-top:4px; }
+.table-toolbar { display:flex;align-items:center;justify-content:space-between;padding:12px 20px;border-bottom:1px solid #e5e7eb;flex-wrap:wrap;gap:8px; }
+.terms-sel { padding:7px 28px 7px 11px;border:1px solid #d1d5db;border-radius:5px;font-family:'Inter',sans-serif;font-size:13px;color:#1a1f2e;background:#fff;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='11' viewBox='0 0 24 24' fill='none' stroke='%239ca3af' stroke-width='2.5'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 9px center;cursor:pointer; }
+.rates-footer { padding:9px 20px;display:flex;justify-content:space-between;font-size:11.5px;color:#9ca3af;border-top:1px solid #e5e7eb;background:#f9fafb; }
+
+.acct-tabs { display:flex;gap:2px;padding:0 20px;border-bottom:1px solid #e5e7eb; }
+.acct-tab { padding:10px 16px;font-size:13px;font-weight:500;color:#6b7280;cursor:pointer;border-bottom:2px solid transparent;background:none;border-top:none;border-left:none;border-right:none;transition:all .12s; }
+.acct-tab:hover { color:#1a1f2e; }
+.acct-tab.active { color:#1a5fd4;border-bottom-color:#1a5fd4;font-weight:600; }
+.acct-panel { display:none; } .acct-panel.active { display:block; }
+
+.expiry-bar-wrap { display:flex;align-items:center;gap:8px; }
+.expiry-bar { height:5px;border-radius:3px;background:#f3f4f6;width:80px;overflow:hidden; }
+.expiry-fill { height:100%;border-radius:3px; }
+
+.alert-banner { background:#fffbeb;border:1px solid #fcd34d;border-left:4px solid #f59e0b;border-radius:7px;padding:14px 20px;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between;gap:12px; }
+
+.grid-2 { display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px; }
+.prog { background:#f3f4f6;border-radius:3px;height:5px;overflow:hidden;display:inline-block; }
+.prog-fill { height:100%;border-radius:3px;background:#1a5fd4; }
+.tl-item { display:flex;gap:14px;padding:11px 0;border-bottom:1px solid #e5e7eb; }
+.tl-item:last-child { border-bottom:none; }
+.tl-dot { width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:5px; }
+.tl-title { font-size:13px;font-weight:500;color:#1a1f2e; }
+.tl-meta { font-size:11.5px;color:#9ca3af;margin-top:2px; }
+.bar-chart { display:flex;align-items:flex-end;gap:8px;height:130px;padding:0 4px; }
+.bg-grp { display:flex;flex-direction:column;align-items:center;gap:4px;flex:1; }
+.bar { width:100%;border-radius:3px 3px 0 0;min-height:4px; }
+.bl { font-size:10.5px;color:#9ca3af; } .bv { font-size:10.5px;font-weight:600;color:#6b7280;font-family:'DM Mono',monospace; }
+.donut-wrap { display:flex;align-items:center;justify-content:center;gap:32px;padding:16px 0; }
+.donut { position:relative;width:120px;height:120px; }
+.donut svg { transform:rotate(-90deg); }
+.dl { position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center; }
+.dl .dv { font-size:19px;font-weight:700;line-height:1;letter-spacing:-.5px; }
+.dl .du2 { font-size:11px;color:#9ca3af;margin-top:2px; }
+.legend { display:flex;flex-direction:column;gap:9px; }
+.leg-item { display:flex;align-items:center;gap:9px;font-size:13px;color:#374151; }
+.leg-dot { width:9px;height:9px;border-radius:50%;flex-shrink:0; }
+.leg-pct { margin-left:auto;font-weight:600;font-family:'DM Mono',monospace;font-size:12px;color:#6b7280; }
+::-webkit-scrollbar { width:5px;height:5px; }
+::-webkit-scrollbar-track { background:#f3f4f6; }
+::-webkit-scrollbar-thumb { background:#d1d5db;border-radius:3px; }
+.toast { position:fixed;bottom:24px;right:24px;background:#1a1f2e;color:#fff;padding:11px 18px;border-radius:7px;font-size:13px;box-shadow:0 4px 16px rgba(0,0,0,.08);z-index:999;opacity:0;transform:translateY(8px);transition:all .25s;pointer-events:none; }
+.toast.show { opacity:1;transform:translateY(0); }
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="login-screen">
+  <div class="wc-right">
+    <div class="wc-card">
+      <div class="wc-brand">
+        <div class="wc-brand-name">Westcor Energy</div>
+        <div class="wc-brand-sub">Commercial Energy Services</div>
+      </div>
+      <div class="wc-form-title">Sign in</div>
+      <div class="wc-form-sub">Access your Westcor broker portal</div>
+      <div class="wc-field"><label>Email</label><input type="email" id="login-email"></div>
+      <div class="wc-field"><label>Password</label><input type="password" id="login-pass"></div>
+      <button class="wc-submit" onclick="doLogin()">Sign In</button>
+      <div class="wc-error" id="login-err">Incorrect email or password.</div>
+      <div class="wc-links-row">
+        <a href="#" class="wc-link-muted">Forgot Password?</a>
+        <a href="#" class="wc-link-accent" onclick="openModal('signup-overlay');return false;">Request Access</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SIGNUP MODAL -->
+<div class="overlay" id="signup-overlay">
+  <div class="modal modal-sm">
+    <div class="modal-header">
+      <h2>Request Access</h2>
+      <button class="modal-close" onclick="closeModal('signup-overlay')">×</button>
+    </div>
+    <div class="modal-body">
+      <div style="font-size:13px;color:#6b7280;margin-bottom:18px;line-height:1.6;">Fill in your info below. Once approved, you'll receive login credentials from Westcor Energy.</div>
+      <div class="wc-field"><label style="font-size:.7rem;font-weight:600;letter-spacing:1.2px;text-transform:uppercase;color:#5C5A54;">Full Name</label><input class="inp" type="text" id="signup-name" placeholder="Jane Smith"></div>
+      <div class="wc-field"><label style="font-size:.7rem;font-weight:600;letter-spacing:1.2px;text-transform:uppercase;color:#5C5A54;">Email</label><input class="inp" type="email" id="signup-email" placeholder="jane@company.com"></div>
+      <div class="wc-field"><label style="font-size:.7rem;font-weight:600;letter-spacing:1.2px;text-transform:uppercase;color:#5C5A54;">Phone</label><input class="inp" type="tel" id="signup-phone" placeholder="(832) 555-0000"></div>
+      <div class="wc-field"><label style="font-size:.7rem;font-weight:600;letter-spacing:1.2px;text-transform:uppercase;color:#5C5A54;">Message (optional)</label><textarea class="inp" id="signup-message" placeholder="Tell us about yourself..." style="height:80px;resize:none;"></textarea></div>
+      <div id="signup-status" style="display:none;font-size:12px;padding:8px 12px;border-radius:5px;margin-top:4px;"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('signup-overlay')">Cancel</button>
+      <button class="btn btn-primary" onclick="submitAccessRequest()">Submit Request</button>
+    </div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app">
+  <nav class="topnav">
+    <div class="nav-brand">Westcor Energy</div>
+    <div class="nav-tabs">
+      <button class="nav-tab active" onclick="showPage('pricing',this)">Pricing</button>
+      <button class="nav-tab" onclick="showPage('proposals',this)">Proposals</button>
+      <button class="nav-tab" onclick="showPage('accounts',this)">Accounts</button>
+      <button class="nav-tab" onclick="showPage('reports',this)">Reports</button>
+    </div>
+    <div class="nav-right">
+      <span>Vic Prince</span>
+      <div class="nav-avatar">VP</div>
+      <button class="logout-btn" onclick="openModal('settings-overlay')" style="font-size:15px;padding:4px 8px;">⚙️</button>
+      <button class="logout-btn" onclick="doLogout()">Sign out</button>
+    </div>
+  </nav>
+  <div class="main">
+
+    <!-- PRICING -->
+    <div class="page active" id="page-pricing">
+      <div class="card">
+        <div class="card-header">
+          <h3>Pricing Details</h3>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <label class="btn btn-outline btn-sm" style="cursor:pointer;">📄 Upload Bill<input type="file" id="bill-upload-input" accept=".pdf,image/*" style="display:none;" onchange="handleBillUpload(this)"></label>
+            <button class="collapse-btn" onclick="toggleEl('pdet')">∨</button>
+          </div>
+        </div>
+        <div class="card-body" id="pdet">
+          <div style="display:flex;gap:12px;align-items:flex-start;flex-wrap:wrap;">
+
+            <!-- Zip -->
+            <div style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:7px;padding:14px 16px;min-width:140px;">
+              <div class="ig"><label>Zip</label><input class="inp" id="p-zip" placeholder="e.g. 77005" style="background:#fff;"></div>
+            </div>
+
+            <!-- Commodity -->
+            <div style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:7px;padding:14px 16px;min-width:160px;">
+              <div class="ig"><label>Commodity</label>
+                <select class="inp inp-sel" id="p-commodity" style="background:#fff;">
+                  <option value="">— Select —</option>
+                  <option value="electricity">⚡ Electricity</option>
+                  <option value="gas">🔥 Natural Gas</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- State / Utility / Zone stacked -->
+            <div style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:7px;padding:14px 16px;min-width:200px;display:flex;flex-direction:column;gap:10px;">
+              <div class="ig"><label>State</label>
+                <select class="inp inp-sel" id="p-state" style="background:#fff;">
+                  <option value="">— Select —</option>
+                  <option>Texas</option><option>Illinois</option><option>Pennsylvania</option>
+                  <option>New Jersey</option><option>New York</option><option>Connecticut</option>
+                  <option>Massachusetts</option><option>Maryland</option><option>Ohio</option>
+                  <option>Michigan</option><option>Georgia</option><option>Florida</option>
+                </select>
+              </div>
+              <div class="ig"><label>Utility</label>
+                <select class="inp inp-sel" id="p-utility" style="background:#fff;">
+                  <option value="">— Select —</option>
+                  <option>CenterPoint Energy</option><option>Oncor Electric</option>
+                  <option>AEP Texas Central</option><option>AEP Texas North</option>
+                  <option>TNMP (Texas-New Mexico Power)</option><option>Entergy Texas</option>
+                </select>
+                <a href="#" class="view-sample">View Sample Bill</a>
+              </div>
+              <div class="ig"><label>Zone / LDC</label>
+                <select class="inp inp-sel" id="p-zone" style="background:#fff;">
+                  <option value="">— Select —</option>
+                  <option>Houston</option><option>North</option><option>South</option>
+                  <option>West</option><option>AEP</option><option>LCRA</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Annual Volume / Load Profile -->
+            <div style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:7px;padding:14px 16px;min-width:190px;display:flex;flex-direction:column;gap:10px;">
+              <div class="ig"><label>Annual Volume (kWh)</label><input class="inp" id="p-volume" placeholder="e.g. 60000" style="background:#fff;"></div>
+              <div class="ig"><label>Load Profile</label>
+                <select class="inp inp-sel" id="p-loadprofile" style="background:#fff;">
+                  <option value="">— Select —</option>
+                  <option>Low Load Factor</option>
+                  <option>Medium Load Factor</option>
+                  <option>High Load Factor</option>
+                  <option>Flat / 24x7</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Start Month / Product -->
+            <div style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:7px;padding:14px 16px;min-width:190px;display:flex;flex-direction:column;gap:10px;">
+              <div class="ig"><label>Start Month</label><select class="inp inp-sel" id="p-startmonth" style="background:#fff;"><option value="">— Select —</option></select></div>
+              <div class="ig"><label>Product</label>
+                <select class="inp inp-sel" id="p-product" style="background:#fff;">
+                  <option value="">— Select —</option>
+                  <option>Fixed (All In)</option><option>Fixed + Pass-Through</option>
+                  <option>Index (Real-Time)</option><option>Block &amp; Index</option>
+                  <option>Green / REC-Backed</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Broker Fee -->
+            <div style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:7px;padding:14px 16px;min-width:160px;">
+              <div class="ig"><label>Broker Fee ($/kWh)</label><input class="inp" id="p-brokerfee" type="number" min="0" step="0.001" placeholder="0.000" oninput="recalcRates()" style="background:#fff;"></div>
+            </div>
+
+          </div>
+          <div class="acts-row">
+            <button class="btn btn-ghost" onclick="resetPricingForm()">Reset</button>
+            <button class="btn btn-primary" onclick="showToast('Pricing applied. Fetching rates...')">Apply</button>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="table-toolbar">
+          <div style="display:flex;align-items:center;gap:8px;">
+            <select class="terms-sel"><option>Standard Terms</option><option>Custom Terms</option></select>
+            <button class="btn btn-outline btn-sm">Show Details</button>
+          </div>
+          <div style="display:flex;gap:8px;">
+            <button class="btn btn-ghost" onclick="showToast('Custom pricing request sent.')">Request Custom Pricing</button>
+            <button class="btn btn-primary" onclick="openModal('proposal-overlay')">Create Proposal</button>
+          </div>
+        </div>
+        <div class="tbl-wrap">
+          <table>
+            <thead><tr><th style="width:180px">Supplier</th><th>12 Months</th><th>18 Months</th><th>24 Months</th><th>36 Months</th><th>48 Months</th><th>60 Months</th></tr></thead>
+            <tbody id="rates-tbody"></tbody>
+          </table>
+        </div>
+        <div class="rates-footer"><span>Broker fee included in displayed rates · Click a rate to select</span><span>Last updated: 03/15/2026 08:00</span></div>
+      </div>
+    </div>
+
+    <!-- PROPOSALS -->
+    <div class="page" id="page-proposals">
+      <div class="sec-head">
+        <div><h2>Proposals</h2><p>Track and manage all client energy proposals</p></div>
+        <button class="btn btn-primary" onclick="openModal('new-prop-overlay')">+ New Proposal</button>
+      </div>
+      <div class="stats-row s4" style="grid-template-columns:repeat(3,1fr);">
+        <div class="stat-card"><div class="stat-label">Total Proposals</div><div class="stat-val">2</div><div class="stat-sub">This month</div></div>
+        <div class="stat-card"><div class="stat-label">Pending</div><div class="stat-val">1</div></div>
+        <div class="stat-card"><div class="stat-label">Accepted</div><div class="stat-val">1</div></div>
+      </div>
+      <div class="card">
+        <div class="toolbar">
+          <div class="srch"><span class="srch-ic">🔍</span><input class="inp" placeholder="Search proposals..." style="padding-left:28px;width:240px;"></div>
+          <div style="display:flex;gap:8px;align-items:center;">
+            <select class="inp inp-sel" style="width:130px;padding:7px 28px 7px 10px;"><option>All Status</option><option>Pending</option><option>Accepted</option><option>Declined</option></select>
+            <select class="inp inp-sel" style="width:138px;padding:7px 28px 7px 10px;"><option>All Suppliers</option><option>ENGIE</option><option>NRG</option><option>Gexa</option><option>APG&amp;E</option></select>
+            <button class="btn btn-ghost btn-sm">Export</button>
+          </div>
+        </div>
+        <div class="tbl-wrap">
+          <table>
+            <thead><tr><th>Proposal ID</th><th>Client</th><th>Supplier</th><th>Term</th><th>Rate</th><th>Volume</th><th>Sent</th><th>Status</th><th>Expires</th><th>Action</th></tr></thead>
+            <tbody>
+              <tr><td><span style="font-family:'DM Mono',monospace;font-size:11.5px;color:#1a5fd4">#PRO-2026-0047</span></td><td><div style="display:flex;align-items:center;gap:9px;"><div class="av">RC</div><div><div class="fw">Riverside Church</div><div style="font-size:11.5px;color:#9ca3af;">Houston, TX</div></div></div></td><td><span class="l-engie">ENGIE</span></td><td>24 mo</td><td><span class="rate r-default">$0.07521</span></td><td>60,000 kWh</td><td>Mar 10, 2026</td><td><span class="badge b-pending">Pending</span></td><td><span class="achip ac-soon">Mar 24</span></td><td><button class="btn btn-ghost btn-sm" onclick="showToast('Proposal opened')">View</button></td></tr>
+              <tr><td><span style="font-family:'DM Mono',monospace;font-size:11.5px;color:#1a5fd4">#PRO-2026-0046</span></td><td><div style="display:flex;align-items:center;gap:9px;"><div class="av">MF</div><div><div class="fw">Metro Fitness Club</div><div style="font-size:11.5px;color:#9ca3af;">Dallas, TX</div></div></div></td><td><span class="l-nrg">NRG</span></td><td>12 mo</td><td><span class="rate r-best">$0.06976</span></td><td>120,000 kWh</td><td>Mar 8, 2026</td><td><span class="badge b-active">Accepted</span></td><td><span class="achip ac-ok">—</span></td><td><button class="btn btn-confirm btn-sm" onclick="showToast('Contract initiated ✓')">Convert</button></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ACCOUNTS (with contracts merged in) -->
+    <div class="page" id="page-accounts">
+      <div class="sec-head">
+        <div><h2>Accounts</h2><p>Client portfolio and contract status</p></div>
+        <button class="btn btn-primary" onclick="openModal('new-acct-overlay')">+ Add Account</button>
+      </div>
+      <div class="stats-row s4" style="grid-template-columns:repeat(3,1fr);">
+        <div class="stat-card"><div class="stat-label">Total Accounts</div><div class="stat-val">2</div></div>
+        <div class="stat-card"><div class="stat-label">Active Contracts</div><div class="stat-val">2</div></div>
+        <div class="stat-card"><div class="stat-label">Volume Under Mgmt</div><div class="stat-val">210,000</div><div class="stat-sub">kWh annually</div></div>
+      </div>
+
+      <!-- Expiry alert -->
+      <div class="alert-banner">
+        <div>
+          <div style="font-size:14px;font-weight:700;color:#92400e;">⚠️ 1 contract expiring within 90 days</div>
+        </div>
+        <button class="btn btn-sm" style="background:#f59e0b;color:#fff;border:none;white-space:nowrap;" onclick="switchAcctTab('expiring')">View Expiring</button>
+      </div>
+
+      <div class="card" style="overflow:visible;">
+        <div class="acct-tabs">
+          <button class="acct-tab active" onclick="switchAcctTab('all')">All Accounts</button>
+          <button class="acct-tab" onclick="switchAcctTab('expiring')">Expiring Soon <span style="background:#fef3c7;color:#92400e;border-radius:10px;padding:1px 7px;font-size:11px;font-weight:700;margin-left:4px;">2</span></button>
+        </div>
+
+        <!-- ALL ACCOUNTS -->
+        <div class="acct-panel active" id="acct-panel-all">
+          <div class="toolbar">
+            <div class="srch"><span class="srch-ic">🔍</span><input class="inp" placeholder="Search accounts..." style="padding-left:28px;width:240px;"></div>
+            <div style="display:flex;gap:8px;">
+              <select class="inp inp-sel" style="width:150px;padding:7px 28px 7px 10px;"><option>All Utilities</option><option>Centerpoint</option><option>Oncor</option><option>AEP</option></select>
+              <select class="inp inp-sel" style="width:138px;padding:7px 28px 7px 10px;"><option>All Suppliers</option><option>ENGIE</option><option>NRG</option><option>Gexa</option></select>
+              <button class="btn btn-ghost btn-sm">Export</button>
+            </div>
+          </div>
+          <div class="tbl-wrap">
+            <table>
+              <thead><tr><th>Account</th><th>Location</th><th>Utility</th><th>Supplier</th><th>Rate</th><th>Annual kWh</th><th>Contract Start</th><th>Contract End</th><th>Days Left</th><th>Savings</th><th>Status</th><th>Action</th></tr></thead>
+              <tbody>
+                <tr><td><div style="display:flex;align-items:center;gap:9px;"><div class="av">MF</div><div><div class="fw">Metro Fitness Club</div></div></div></td><td>Dallas, TX</td><td>Oncor</td><td><span class="l-nrg">NRG</span></td><td><span class="rate r-best">$0.06976</span></td><td>120,000</td><td>Aug 2026</td><td>Aug 2027</td><td><div class="expiry-bar-wrap"><div class="expiry-bar"><div class="expiry-fill" style="width:90%;background:#16a34a;"></div></div><span style="font-size:11.5px;color:#9ca3af;">517d</span></div></td><td><span style="font-weight:600;color:#16a34a;">↓ 11.4%</span></td><td><span class="badge b-active">Active</span></td><td><button class="btn btn-ghost btn-sm" onclick="showToast('Metro Fitness opened')">Manage</button></td></tr>
+                <tr><td><div style="display:flex;align-items:center;gap:9px;"><div class="av">BW</div><div><div class="fw">Bayou Warehouse Co.</div></div></div></td><td>Houston, TX</td><td>Centerpoint</td><td><span class="l-fp">Freepoint</span></td><td><span class="rate r-default">$0.08474</span></td><td>90,000</td><td>Apr 2025</td><td>Apr 2026</td><td><div class="expiry-bar-wrap"><div class="expiry-bar"><div class="expiry-fill" style="width:12%;background:#dc2626;"></div></div><span style="font-size:11.5px;color:#dc2626;font-weight:700;">17d</span></div></td><td style="color:#9ca3af;">—</td><td><span class="badge b-warn">Renewal Due</span></td><td><button class="btn btn-primary btn-sm" onclick="showToast('Re-quote started')">Re-Quote</button></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- EXPIRING SOON -->
+        <div class="acct-panel" id="acct-panel-expiring">
+          <div style="padding:12px 20px;border-bottom:1px solid #e5e7eb;font-size:12.5px;color:#92400e;background:#fffbeb;">Sorted by urgency — contracts expiring within 90 days</div>
+          <div class="tbl-wrap">
+            <table>
+              <thead><tr><th>Client</th><th>Supplier</th><th>Current Rate</th><th>Contract End</th><th>Days Left</th><th>Volume</th><th>Est. Commission</th><th>Action</th></tr></thead>
+              <tbody>
+                <tr><td class="fw">Bayou Warehouse Co.</td><td><span class="l-fp">Freepoint</span></td><td><span class="rate r-default">$0.08474</span></td><td>Apr 1, 2026</td><td><span class="achip ac-urgent">17 days</span></td><td>90,000 kWh</td><td><span style="font-weight:600;color:#16a34a;">~$1,080</span></td><td><button class="btn btn-primary btn-sm" onclick="showToast('Re-quote started for Bayou Warehouse')">Re-Quote Now</button></td></tr>
+                <tr><td class="fw">Sunridge Office Park</td><td><span class="l-hudson">Hudson Energy</span></td><td><span class="rate r-default">$0.08200</span></td><td>Apr 15, 2026</td><td><span class="achip ac-urgent">31 days</span></td><td>150,000 kWh</td><td><span style="font-weight:600;color:#16a34a;">~$1,800</span></td><td><button class="btn btn-primary btn-sm" onclick="showToast('Re-quote started for Sunridge')">Re-Quote Now</button></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+
+      </div>
+    </div>
+
+    <!-- REPORTS -->
+    <div class="page" id="page-reports">
+      <div class="sec-head">
+        <div><h2>Reports</h2><p>Commission tracking, savings delivered &amp; pipeline analytics</p></div>
+        <div style="display:flex;gap:8px;">
+          <select class="inp inp-sel" style="width:155px;padding:7px 28px 7px 10px;"><option>Q1 2026</option><option>Q4 2025</option><option>Q3 2025</option><option>Full Year 2025</option></select>
+          <button class="btn btn-ghost btn-sm">↓ Download PDF</button>
+        </div>
+      </div>
+      <div class="stats-row s5" style="grid-template-columns:repeat(3,1fr);">
+        <div class="stat-card"><div class="stat-label">kWh Under Mgmt</div><div class="stat-val">210,000</div></div>
+        <div class="stat-card"><div class="stat-label">Avg Client Savings</div><div class="stat-val">14.2%</div><div class="stat-delta d-up">↑ vs prior year</div></div>
+        <div class="stat-card"><div class="stat-label">Proposals Sent</div><div class="stat-val">2</div></div>
+      </div>
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-header"><h3>Monthly Commission — Q1 2026</h3></div>
+          <div class="card-body">
+            <div class="bar-chart">
+              <div class="bg-grp"><div class="bv">$8.2K</div><div class="bar" style="height:80px;background:#1a5fd4;opacity:.6;width:100%;"></div><div class="bl">Jan</div></div>
+              <div class="bg-grp"><div class="bv">$11.4K</div><div class="bar" style="height:105px;background:#1a5fd4;opacity:.8;width:100%;"></div><div class="bl">Feb</div></div>
+              <div class="bg-grp"><div class="bv">$19.0K</div><div class="bar" style="height:130px;background:#1a5fd4;width:100%;"></div><div class="bl">Mar*</div></div>
+              <div class="bg-grp"><div class="bv" style="color:#d1d5db;">—</div><div class="bar" style="height:4px;background:#f3f4f6;width:100%;"></div><div class="bl">Apr</div></div>
+              <div class="bg-grp"><div class="bv" style="color:#d1d5db;">—</div><div class="bar" style="height:4px;background:#f3f4f6;width:100%;"></div><div class="bl">May</div></div>
+              <div class="bg-grp"><div class="bv" style="color:#d1d5db;">—</div><div class="bar" style="height:4px;background:#f3f4f6;width:100%;"></div><div class="bl">Jun</div></div>
+            </div>
+            <div style="font-size:11px;color:#9ca3af;margin-top:10px;">*March is YTD projected based on current pipeline</div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header"><h3>Volume by Supplier</h3></div>
+          <div class="card-body">
+            <div class="donut-wrap">
+              <div class="donut">
+                <svg width="120" height="120" viewBox="0 0 120 120">
+                  <circle cx="60" cy="60" r="46" fill="none" stroke="#f3f4f6" stroke-width="20"/>
+                  <circle cx="60" cy="60" r="46" fill="none" stroke="#1a5fd4" stroke-width="20" stroke-dasharray="101 188" stroke-dashoffset="0"/>
+                  <circle cx="60" cy="60" r="46" fill="none" stroke="#374151" stroke-width="20" stroke-dasharray="59 188" stroke-dashoffset="-101"/>
+                  <circle cx="60" cy="60" r="46" fill="none" stroke="#6b7280" stroke-width="20" stroke-dasharray="47 188" stroke-dashoffset="-160"/>
+                  <circle cx="60" cy="60" r="46" fill="none" stroke="#9ca3af" stroke-width="20" stroke-dasharray="26 188" stroke-dashoffset="-207"/>
+                  <circle cx="60" cy="60" r="46" fill="none" stroke="#d1d5db" stroke-width="20" stroke-dasharray="20 188" stroke-dashoffset="-233"/>
+                </svg>
+                <div class="dl"><div class="dv">8.4M</div><div class="du2">kWh</div></div>
+              </div>
+              <div class="legend">
+                <div class="leg-item"><div class="leg-dot" style="background:#1a5fd4;"></div><span>APG&amp;E</span><span class="leg-pct">35%</span></div>
+                <div class="leg-item"><div class="leg-dot" style="background:#374151;"></div><span>NRG</span><span class="leg-pct">21%</span></div>
+                <div class="leg-item"><div class="leg-dot" style="background:#6b7280;"></div><span>ENGIE</span><span class="leg-pct">17%</span></div>
+                <div class="leg-item"><div class="leg-dot" style="background:#9ca3af;"></div><span>Freepoint</span><span class="leg-pct">14%</span></div>
+                <div class="leg-item"><div class="leg-dot" style="background:#d1d5db;"></div><span>Others</span><span class="leg-pct">13%</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-header"><h3>Top Accounts by Commission</h3></div>
+          <div class="tbl-wrap">
+            <table>
+              <thead><tr><th>Client</th><th>Volume</th><th>Commission</th></tr></thead>
+              <tbody>
+                <tr><td class="fw">Hartwell Schools</td><td>480,000 kWh</td><td><span style="font-weight:700;">$11,520</span></td></tr>
+                <tr><td class="fw">Westpark Medical</td><td>360,000 kWh</td><td><span style="font-weight:700;">$8,640</span></td></tr>
+                <tr><td class="fw">Sunridge Office</td><td>150,000 kWh</td><td><span style="font-weight:700;">$3,600</span></td></tr>
+                <tr><td class="fw">Metro Fitness</td><td>120,000 kWh</td><td><span style="font-weight:700;">$2,880</span></td></tr>
+                <tr><td class="fw">Cedar Ridge Apts</td><td>72,000 kWh</td><td><span style="font-weight:700;">$1,728</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header"><h3>Recent Activity</h3></div>
+          <div style="padding:0 20px;">
+            <div class="tl-item"><div class="tl-dot" style="background:#16a34a;"></div><div><div class="tl-title">Metro Fitness Club — Proposal accepted</div><div class="tl-meta">NRG · 12 mo · $0.06976/kWh · Mar 8, 2026</div></div></div>
+            <div class="tl-item"><div class="tl-dot" style="background:#1a5fd4;"></div><div><div class="tl-title">Riverside Church — Proposal sent</div><div class="tl-meta">ENGIE · 24 mo · $0.07521/kWh · Mar 10, 2026</div></div></div>
+            <div class="tl-item"><div class="tl-dot" style="background:#d97706;"></div><div><div class="tl-title">Bayou Warehouse — Contract expiring soon</div><div class="tl-meta">Freepoint · Expires Apr 1, 2026 · Action needed</div></div></div>
+            <div class="tl-item"><div class="tl-dot" style="background:#16a34a;"></div><div><div class="tl-title">Hartwell Schools — Contract signed</div><div class="tl-meta">APG&amp;E · 24 mo · $0.07595/kWh · Feb 28, 2026</div></div></div>
+            <div class="tl-item"><div class="tl-dot" style="background:#991b1b;"></div><div><div class="tl-title">Tower Plaza LLC — Proposal declined</div><div class="tl-meta">Gexa Energy · 36 mo · Mar 5, 2026</div></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- PROPOSAL MODAL -->
+<div class="overlay" id="proposal-overlay">
+  <div class="modal modal-lg">
+    <div class="modal-header"><h2>Create Proposal — Select Rates</h2><button class="modal-close" onclick="closeModal('proposal-overlay')">×</button></div>
+
+    <!-- Client picker -->
+    <div style="padding:16px 24px;border-bottom:1px solid #e5e7eb;display:flex;align-items:center;gap:16px;background:#f9fafb;">
+      <div style="flex:1;">
+        <label style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.4px;color:#9ca3af;display:block;margin-bottom:5px;">Client</label>
+        <select class="inp inp-sel" id="prop-client" style="max-width:280px;">
+          <option value="Metro Fitness Club|Dallas, TX 75001|Oncor|120,000">Metro Fitness Club</option>
+          <option value="Bayou Warehouse Co.|Houston, TX 77040|CenterPoint Energy|90,000">Bayou Warehouse Co.</option>
+          <option value="Riverside Church|Houston, TX 77005|CenterPoint Energy|60,000">Riverside Church</option>
+        </select>
+      </div>
+      <div style="flex:1;">
+        <label style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.4px;color:#9ca3af;display:block;margin-bottom:5px;">Product</label>
+        <select class="inp inp-sel" id="prop-product" style="max-width:200px;">
+          <option>Fixed (All In)</option>
+          <option>Fixed + Pass-Through</option>
+          <option>Index (Real-Time)</option>
+          <option>Block &amp; Index</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Select suppliers -->
+    <div style="padding:10px 24px;border-bottom:1px solid #e5e7eb;display:flex;align-items:center;gap:10px;">
+      <button class="btn-sel-all" onclick="selectAllCb()">Select All</button>
+      <span style="font-size:12px;color:#9ca3af;">Check the suppliers you want to include in this proposal</span>
+    </div>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th class="cb-cell"></th><th style="width:160px">Supplier</th><th>12 Month</th><th>18 Month</th><th>24 Month</th><th>36 Month</th><th>48 Month</th><th>60 Month</th></tr></thead>
+        <tbody id="proposal-rates-tbody"></tbody>
+      </table>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('proposal-overlay')">Cancel</button>
+      <button class="btn btn-outline" onclick="generateProposal('preview')">Preview PDF</button>
+      <button class="btn btn-primary" onclick="generateProposal('pandadoc')" style="background:#0066cc;">📄 Send via PandaDoc</button>
+    </div>
+  </div>
+</div>
+
+<!-- NEW PROPOSAL MODAL -->
+<div class="overlay" id="new-prop-overlay">
+  <div class="modal modal-md">
+    <div class="modal-header"><h2>New Proposal</h2><button class="modal-close" onclick="closeModal('new-prop-overlay')">×</button></div>
+    <div class="modal-body">
+      <div class="fg f2">
+        <div><label>Client Account</label><select class="inp inp-sel"><option>Metro Fitness Club</option><option>Riverside Church</option><option>Bayou Warehouse Co.</option><option>— New Client —</option></select></div>
+        <div><label>Utility</label><select class="inp inp-sel"><option>Centerpoint</option><option>Oncor</option><option>AEP</option><option>TNMP</option></select></div>
+        <div><label>Annual Volume (kWh)</label><input class="inp" value="60,000"></div>
+        <div><label>Start Month</label><input class="inp" type="month" value="2026-08"></div>
+        <div><label>Product</label><select class="inp inp-sel"><option>Fixed (All In)</option><option>Index</option><option>Block &amp; Index</option></select></div>
+        <div><label>Broker Fee ($/kWh)</label><input class="inp" value="$0.00100"></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('new-prop-overlay')">Cancel</button>
+      <button class="btn btn-primary" onclick="closeModal('new-prop-overlay');showToast('Proposal created — fetching rates...')">Get Rates</button>
+    </div>
+  </div>
+</div>
+
+<!-- NEW ACCOUNT MODAL -->
+<div class="overlay" id="new-acct-overlay">
+  <div class="modal modal-md">
+    <div class="modal-header"><h2>Add New Account</h2><button class="modal-close" onclick="closeModal('new-acct-overlay')">×</button></div>
+    <div class="modal-body">
+      <!-- Basic Info -->
+      <div style="font-size:12px;font-weight:700;color:#1a1f2e;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid #e5e7eb;">Client Info</div>
+      <div class="fg f2" style="margin-bottom:20px;">
+        <div><label>Business Name</label><input class="inp" id="new-acct-name" placeholder="Acme Corp"></div>
+        <div><label>Industry</label><select class="inp inp-sel"><option>Commercial · Office</option><option>Commercial · Retail</option><option>Industrial</option><option>Education</option><option>Healthcare</option><option>Multifamily</option><option>Non-profit</option></select></div>
+        <div><label>Contact Name</label><input class="inp" id="new-acct-contact" placeholder="Jane Smith"></div>
+        <div><label>Contact Email</label><input class="inp" id="new-acct-email" type="email" placeholder="jane@acme.com"></div>
+        <div><label>City</label><input class="inp" id="new-acct-city" placeholder="Houston"></div>
+        <div><label>Zip Code</label><input class="inp" id="new-acct-zip" placeholder="77005"></div>
+        <div><label>State</label><input class="inp" id="new-acct-state" placeholder="Texas"></div>
+        <div><label>Utility</label><select class="inp inp-sel" id="new-acct-utility"><option>CenterPoint Energy</option><option>Oncor Electric</option><option>AEP Texas Central</option><option>TNMP</option></select></div>
+        <div><label>Est. Annual Volume (kWh)</label><input class="inp" id="new-acct-volume" placeholder="60000"></div>
+        <div><label>Status</label>
+          <select class="inp inp-sel" id="new-acct-status">
+            <option value="prospect">Prospect</option>
+            <option value="active">Active</option>
+            <option value="renewal">Renewal Due</option>
+            <option value="pending">Pending Start</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Contract Info -->
+      <div style="font-size:12px;font-weight:700;color:#1a1f2e;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid #e5e7eb;">Contract Info <span style="font-size:11px;color:#9ca3af;font-weight:400;">(fill in if client is already under contract)</span></div>
+      <div class="fg f2">
+        <div><label>Supplier</label>
+          <select class="inp inp-sel" id="new-acct-supplier">
+            <option value="">— None yet —</option>
+            <option>APG&amp;E</option>
+            <option>ENGIE</option>
+            <option>Gexa Energy</option>
+            <option>Hudson Energy</option>
+            <option>NRG</option>
+            <option>Freepoint</option>
+          </select>
+        </div>
+        <div><label>Product</label>
+          <select class="inp inp-sel" id="new-acct-product">
+            <option value="">— None yet —</option>
+            <option>Fixed (All In)</option>
+            <option>Fixed + Pass-Through</option>
+            <option>Index (Real-Time)</option>
+            <option>Block &amp; Index</option>
+          </select>
+        </div>
+        <div><label>Current Rate ($/kWh)</label><input class="inp" id="new-acct-rate" placeholder="0.07464" type="number" step="0.00001"></div>
+        <div><label>Term (months)</label>
+          <select class="inp inp-sel" id="new-acct-term">
+            <option value="">— Select —</option>
+            <option value="12">12 Months</option>
+            <option value="18">18 Months</option>
+            <option value="24">24 Months</option>
+            <option value="36">36 Months</option>
+            <option value="48">48 Months</option>
+            <option value="60">60 Months</option>
+          </select>
+        </div>
+        <div><label>Contract Start</label><input class="inp" id="new-acct-start" type="month"></div>
+        <div><label>Contract End</label><input class="inp" id="new-acct-end" type="month"></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('new-acct-overlay')">Cancel</button>
+      <button class="btn btn-primary" onclick="submitNewAccount()">Add Account</button>
+    </div>
+  </div>
+</div>
+
+<!-- EDIT ACCOUNT MODAL -->
+<div class="overlay" id="edit-acct-overlay">
+  <div class="modal modal-md">
+    <div class="modal-header"><h2>Edit Account</h2><button class="modal-close" onclick="closeModal('edit-acct-overlay')">×</button></div>
+    <div class="modal-body">
+      <input type="hidden" id="edit-acct-id">
+      <div style="font-size:12px;font-weight:700;color:#1a1f2e;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid #e5e7eb;">Client Info</div>
+      <div class="fg f2" style="margin-bottom:20px;">
+        <div><label>Business Name</label><input class="inp" id="edit-acct-name"></div>
+        <div><label>Contact Name</label><input class="inp" id="edit-acct-contact"></div>
+        <div><label>Contact Email</label><input class="inp" id="edit-acct-email" type="email"></div>
+        <div><label>City</label><input class="inp" id="edit-acct-city"></div>
+        <div><label>Zip Code</label><input class="inp" id="edit-acct-zip"></div>
+        <div><label>State</label><input class="inp" id="edit-acct-state"></div>
+        <div><label>Utility</label><select class="inp inp-sel" id="edit-acct-utility"><option>CenterPoint Energy</option><option>Oncor Electric</option><option>AEP Texas Central</option><option>TNMP</option></select></div>
+        <div><label>Annual Volume (kWh)</label><input class="inp" id="edit-acct-volume"></div>
+        <div><label>Status</label>
+          <select class="inp inp-sel" id="edit-acct-status">
+            <option value="prospect">Prospect</option>
+            <option value="active">Active</option>
+            <option value="renewal">Renewal Due</option>
+            <option value="pending">Pending Start</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('edit-acct-overlay')">Cancel</button>
+      <button class="btn btn-primary" onclick="submitEditAccount()">Save Changes</button>
+    </div>
+  </div>
+</div>
+
+<!-- SETTINGS MODAL -->
+<div class="overlay" id="settings-overlay">
+  <div class="modal modal-md">
+    <div class="modal-header"><h2>⚙️ Settings</h2><button class="modal-close" onclick="closeModal('settings-overlay')">×</button></div>
+    <div class="modal-body">
+
+      <!-- Anthropic -->
+      <div style="margin-bottom:24px;">
+        <div style="font-size:13px;font-weight:700;color:#1a1f2e;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid #e5e7eb;">🤖 AI Bill Reading</div>
+        <label style="display:block;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.4px;color:#9ca3af;margin-bottom:6px;">Anthropic API Key</label>
+        <input class="inp" type="password" id="api-key-input" placeholder="sk-ant-..." style="font-family:'DM Mono',monospace;font-size:12px;">
+        <div style="font-size:11.5px;color:#9ca3af;margin-top:6px;line-height:1.6;">Required for the <strong style="color:#374151;">Upload Bill</strong> feature. Get your key at <a href="https://console.anthropic.com" target="_blank" style="color:#1a5fd4;">console.anthropic.com</a>.</div>
+        <div id="api-key-status" style="display:none;font-size:12px;padding:8px 12px;border-radius:5px;margin-top:8px;"></div>
+      </div>
+
+      <!-- PandaDoc -->
+      <div style="margin-bottom:24px;">
+        <div style="font-size:13px;font-weight:700;color:#1a1f2e;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid #e5e7eb;">📄 PandaDoc — Proposal Sending & E-Sign</div>
+        <label style="display:block;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.4px;color:#9ca3af;margin-bottom:6px;">PandaDoc API Key</label>
+        <input class="inp" type="password" id="pandadoc-key-input" placeholder="Enter your PandaDoc API key..." style="font-family:'DM Mono',monospace;font-size:12px;">
+        <div style="font-size:11.5px;color:#9ca3af;margin-top:6px;line-height:1.6;">Required to send proposals directly to clients for e-signing. Get your key at <a href="https://app.pandadoc.com/settings/api-integrations" target="_blank" style="color:#1a5fd4;">PandaDoc → Settings → API</a>.</div>
+        <div id="pandadoc-key-status" style="display:none;font-size:12px;padding:8px 12px;border-radius:5px;margin-top:8px;"></div>
+      </div>
+
+      <!-- Broker info -->
+      <div>
+        <div style="font-size:13px;font-weight:700;color:#1a1f2e;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid #e5e7eb;">👤 Your Contact Info (shown on proposals)</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+          <div>
+            <label style="display:block;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.4px;color:#9ca3af;margin-bottom:5px;">Name</label>
+            <input class="inp" id="broker-name" placeholder="Vic Prince" value="Vic Prince">
+          </div>
+          <div>
+            <label style="display:block;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.4px;color:#9ca3af;margin-bottom:5px;">Phone</label>
+            <input class="inp" id="broker-phone" placeholder="(832) 555-0000" value="(832) 555-0000">
+          </div>
+          <div>
+            <label style="display:block;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.4px;color:#9ca3af;margin-bottom:5px;">Email</label>
+            <input class="inp" id="broker-email" placeholder="vic@westcorenergy.com" value="vic@westcorenergy.com">
+          </div>
+          <div>
+            <label style="display:block;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.4px;color:#9ca3af;margin-bottom:5px;">Website</label>
+            <input class="inp" id="broker-website" placeholder="westcorenergy.com" value="westcorenergy.com">
+          </div>
+        </div>
+      </div>
+
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('settings-overlay')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveAllSettings()">Save Settings</button>
+    </div>
+  </div>
+</div>
+
+<!-- BILL PARSING OVERLAY -->
+<div id="bill-parsing-overlay" style="display:none;position:fixed;inset:0;background:rgba(15,23,42,.7);z-index:500;align-items:center;justify-content:center;">
+  <div style="background:#fff;border-radius:11px;padding:36px 48px;text-align:center;box-shadow:0 20px 50px rgba(0,0,0,.25);max-width:400px;">
+    <div id="bill-spinner" style="font-size:32px;margin-bottom:14px;">⚡</div>
+    <div style="font-size:15px;font-weight:700;color:#1a1f2e;margin-bottom:6px;">Reading Your Bill</div>
+    <div id="bill-status" style="font-size:13px;color:#6b7280;">Extracting account details...</div>
+  </div>
+</div>
+
+<div class="toast" id="toast-el"></div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+// ── SUPABASE CONFIG ──
+const SUPABASE_URL='https://gvvuxfvbgzghwkodnxwy.supabase.co';
+const SUPABASE_ANON_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd2dnV4ZnZiZ3pnaHdrb2RueHd5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM1OTg1OTAsImV4cCI6MjA4OTE3NDU5MH0.an68F6wFeVHkXOvOdq-BHpSrFPYReRMsBuSEBWe4StE';
+let sb;
+try { sb=supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY); } catch(e) { console.warn('Supabase not loaded yet'); }
+
+// ── ACCOUNTS ──
+let ACCOUNTS_CACHE=[];
+
+async function loadAccounts(){
+  if(!sb)return;
+  const{data,error}=await sb.from('accounts').select('*, contracts(supplier,rate,start_date,end_date,status)').order('created_at',{ascending:false});
+  if(error){console.error('Accounts:',error);return;}
+  ACCOUNTS_CACHE=data||[];
+  renderAccountsTable(data);
+  renderProposalClientDropdown(data);
+}
+
+function openEditAccountById(id){
+  const a=ACCOUNTS_CACHE.find(x=>x.id===id);
+  if(!a){showToast('Account not found.');return;}
+  openEditAccount(a);
+}
+
+function renderAccountsTable(accounts){
+  const tbody=document.querySelector('#acct-panel-all table tbody');
+  if(!tbody)return;
+  if(!accounts||!accounts.length){
+    tbody.innerHTML=`<tr><td colspan="11" style="text-align:center;padding:32px;color:#9ca3af;">No accounts yet — add your first client</td></tr>`;
+    return;
+  }
+  tbody.innerHTML=accounts.map(a=>{
+    const initials=(a.business_name||'').split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+    const statusMap={active:'b-active',prospect:'b-neutral',renewal:'b-warn',pending:'b-info'};
+    const badge=statusMap[a.status]||'b-neutral';
+    // Get most recent contract
+    const contract=a.contracts&&a.contracts.length?a.contracts[a.contracts.length-1]:null;
+    const supplier=contract?.supplier||'—';
+    const rate=contract?.rate?`$${parseFloat(contract.rate).toFixed(5)}`:'—';
+    const startDate=contract?.start_date?new Date(contract.start_date).toLocaleDateString('en-US',{month:'short',year:'numeric'}):'—';
+    const endDate=contract?.end_date?new Date(contract.end_date).toLocaleDateString('en-US',{month:'short',year:'numeric'}):'—';
+    // Days left
+    let daysLeftHtml='—';
+    if(contract?.end_date){
+      const days=Math.ceil((new Date(contract.end_date)-new Date())/(1000*60*60*24));
+      if(days<=0) daysLeftHtml=`<span class="achip ac-urgent">Expired</span>`;
+      else if(days<=30) daysLeftHtml=`<div class="expiry-bar-wrap"><div class="expiry-bar"><div class="expiry-fill" style="width:${Math.min(days/90*100,100)}%;background:#dc2626;"></div></div><span style="font-size:11.5px;color:#dc2626;font-weight:700;">${days}d</span></div>`;
+      else if(days<=90) daysLeftHtml=`<div class="expiry-bar-wrap"><div class="expiry-bar"><div class="expiry-fill" style="width:${Math.min(days/365*100,100)}%;background:#f59e0b;"></div></div><span style="font-size:11.5px;color:#f59e0b;font-weight:700;">${days}d</span></div>`;
+      else daysLeftHtml=`<div class="expiry-bar-wrap"><div class="expiry-bar"><div class="expiry-fill" style="width:${Math.min(days/730*100,100)}%;background:#16a34a;"></div></div><span style="font-size:11.5px;color:#9ca3af;">${days}d</span></div>`;
+    }
+    return`<tr>
+      <td><div style="display:flex;align-items:center;gap:9px;"><div class="av">${initials}</div><div><div class="fw">${a.business_name||'—'}</div></div></div></td>
+      <td>${a.city||'—'}, ${a.state||'—'}</td>
+      <td>${a.utility||'—'}</td>
+      <td><span style="font-weight:700;">${supplier}</span></td>
+      <td>${rate==='—'?`<span style="color:#9ca3af;">—</span>`:`<span class="rate r-default">${rate}</span>`}</td>
+      <td>${a.annual_volume?Number(a.annual_volume).toLocaleString():'—'}</td>
+      <td>${startDate}</td>
+      <td>${endDate}</td>
+      <td>${daysLeftHtml}</td>
+      <td><span class="badge ${badge}">${a.status||'prospect'}</span></td>
+      <td><button class="btn btn-ghost btn-sm" onclick="openEditAccountById('${a.id}')">Edit</button> <button class="btn btn-sm" style="background:#fff1f1;color:#991b1b;border:1px solid #fca5a5;" onclick="deleteAccount('${a.id}','${a.business_name}')">Delete</button></td>
+    </tr>`;
+  }).join('');
+}
+
+function renderProposalClientDropdown(accounts){
+  const sel=document.getElementById('prop-client');
+  if(!sel||!accounts||!accounts.length)return;
+  sel.innerHTML=accounts.map(a=>
+    `<option value="${a.business_name}|${a.city}, ${a.state} ${a.zip||''}|${a.utility||''}|${a.annual_volume||''}">${a.business_name}</option>`
+  ).join('');
+}
+
+async function addAccount(data){
+  if(!sb)return;
+  const{error}=await sb.from('accounts').insert([data]);
+  if(error){showToast('Error saving account.');console.error(error);return;}
+  showToast('Account added ✓');
+  closeModal('new-acct-overlay');
+  loadAccounts();
+}
+
+// ── PROPOSALS ──
+async function loadProposals(){
+  if(!sb)return;
+  const{data,error}=await sb.from('proposals').select('*, accounts(business_name,city,state)').order('sent_at',{ascending:false});
+  if(error){console.error('Proposals:',error);return;}
+  renderProposalsTable(data);
+}
+
+function renderProposalsTable(proposals){
+  const tbody=document.querySelector('#page-proposals table tbody');
+  if(!tbody)return;
+  if(!proposals||!proposals.length){
+    tbody.innerHTML=`<tr><td colspan="10" style="text-align:center;padding:32px;color:#9ca3af;">No proposals yet</td></tr>`;
+    return;
+  }
+  const statusMap={pending:'b-pending',accepted:'b-active',declined:'b-declined'};
+  tbody.innerHTML=proposals.map((p,i)=>{
+    const clientName=p.accounts?.business_name||'—';
+    const location=p.accounts?`${p.accounts.city}, ${p.accounts.state}`:'—';
+    const initials=clientName.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+    const badge=statusMap[p.status]||'b-neutral';
+    const sentDate=p.sent_at?new Date(p.sent_at).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}):'—';
+    const proNum=`#PRO-${new Date(p.sent_at||Date.now()).getFullYear()}-${String(i+1).padStart(4,'0')}`;
+    return`<tr>
+      <td><span style="font-family:'DM Mono',monospace;font-size:11.5px;color:#1a5fd4">${proNum}</span></td>
+      <td><div style="display:flex;align-items:center;gap:9px;"><div class="av">${initials}</div><div><div class="fw">${clientName}</div><div style="font-size:11.5px;color:#9ca3af;">${location}</div></div></div></td>
+      <td><span style="font-weight:700;">${p.supplier||'—'}</span></td>
+      <td>${p.term||'—'} mo</td>
+      <td><span class="rate r-default">$${p.rate||'—'}</span></td>
+      <td>${p.volume?Number(p.volume).toLocaleString():'—'} kWh</td>
+      <td>${sentDate}</td>
+      <td><span class="badge ${badge}">${p.status||'pending'}</span></td>
+      <td>—</td>
+      <td><button class="btn btn-ghost btn-sm" onclick="showToast('Proposal opened')">View</button></td>
+    </tr>`;
+  }).join('');
+}
+
+// ── RATES FROM SUPABASE ──
+async function loadRatesFromDB(){
+  if(!sb)return;
+  const{data,error}=await sb.from('rates').select('*').order('uploaded_at',{ascending:false});
+  if(error||!data||!data.length)return;
+  const grouped={};
+  data.forEach(r=>{
+    if(!grouped[r.supplier])grouped[r.supplier]={name:r.supplier,cls:'l-nrg',rates:[null,null,null,null,null,null]};
+    const tMap={12:0,18:1,24:2,36:3,48:4,60:5};
+    [12,18,24,36,48,60].forEach(t=>{if(r[`rate_${t}`])grouped[r.supplier].rates[tMap[t]]=parseFloat(r[`rate_${t}`]);});
+  });
+  if(Object.keys(grouped).length){
+    BASE_RATES.splice(0,BASE_RATES.length,...Object.values(grouped));
+    recalcRates();
+    showToast('Live rates loaded ✓');
+  }
+}
+
+function openEditAccount(a){
+  document.getElementById('edit-acct-id').value=a.id;
+  document.getElementById('edit-acct-name').value=a.business_name||'';
+  document.getElementById('edit-acct-contact').value=a.contact_name||'';
+  document.getElementById('edit-acct-email').value=a.contact_email||'';
+  document.getElementById('edit-acct-city').value=a.city||'';
+  document.getElementById('edit-acct-zip').value=a.zip||'';
+  document.getElementById('edit-acct-state').value=a.state||'';
+  document.getElementById('edit-acct-volume').value=a.annual_volume||'';
+  setSelectByText('edit-acct-utility',a.utility||'');
+  const statusSel=document.getElementById('edit-acct-status');
+  if(statusSel)statusSel.value=a.status||'prospect';
+  openModal('edit-acct-overlay');
+}
+
+async function submitEditAccount(){
+  const id=document.getElementById('edit-acct-id').value;
+  const name=document.getElementById('edit-acct-name').value;
+  if(!name){showToast('Business name is required.');return;}
+  const{error}=await sb.from('accounts').update({
+    business_name:name,
+    contact_name:document.getElementById('edit-acct-contact').value||null,
+    contact_email:document.getElementById('edit-acct-email').value||null,
+    city:document.getElementById('edit-acct-city').value||null,
+    zip:document.getElementById('edit-acct-zip').value||null,
+    state:document.getElementById('edit-acct-state').value||null,
+    utility:document.getElementById('edit-acct-utility').value||null,
+    annual_volume:parseFloat((document.getElementById('edit-acct-volume').value||'0').replace(/,/g,''))||null,
+    status:document.getElementById('edit-acct-status').value||'prospect'
+  }).eq('id',id);
+  if(error){showToast('Error updating account.');console.error(error);return;}
+  showToast(name+' updated ✓');
+  closeModal('edit-acct-overlay');
+  loadAccounts();
+}
+
+async function deleteAccount(id, name){
+  if(!confirm(`Delete "${name}"? This will also remove their contracts. This cannot be undone.`))return;
+  // Delete contracts first (foreign key)
+  await sb.from('contracts').delete().eq('account_id',id);
+  // Delete proposals
+  await sb.from('proposals').delete().eq('account_id',id);
+  // Delete account
+  const{error}=await sb.from('accounts').delete().eq('id',id);
+  if(error){showToast('Error deleting account.');console.error(error);return;}
+  showToast(name+' deleted.');
+  loadAccounts();
+}
+
+async function submitNewAccount(){
+  if(!name){showToast('Business name is required.');return;}
+  const accountData={
+    business_name:name,
+    contact_name:document.getElementById('new-acct-contact')?.value||null,
+    contact_email:document.getElementById('new-acct-email')?.value||null,
+    city:document.getElementById('new-acct-city')?.value||null,
+    zip:document.getElementById('new-acct-zip')?.value||null,
+    state:document.getElementById('new-acct-state')?.value||null,
+    utility:document.getElementById('new-acct-utility')?.value||null,
+    annual_volume:parseFloat((document.getElementById('new-acct-volume')?.value||'0').replace(/,/g,''))||null,
+    status:document.getElementById('new-acct-status')?.value||'prospect'
+  };
+  const{data,error}=await sb.from('accounts').insert([accountData]).select();
+  if(error){showToast('Error saving account.');console.error(error);return;}
+  const accountId=data[0].id;
+  // Save contract if supplier selected
+  const supplier=document.getElementById('new-acct-supplier')?.value;
+  if(supplier){
+    const startVal=document.getElementById('new-acct-start')?.value;
+    const endVal=document.getElementById('new-acct-end')?.value;
+    const{error:cErr}=await sb.from('contracts').insert([{
+      account_id:accountId,
+      supplier,
+      product:document.getElementById('new-acct-product')?.value||null,
+      rate:parseFloat(document.getElementById('new-acct-rate')?.value)||null,
+      term:parseInt(document.getElementById('new-acct-term')?.value)||null,
+      start_date:startVal?startVal+'-01':null,
+      end_date:endVal?endVal+'-01':null,
+      annual_volume:parseFloat((document.getElementById('new-acct-volume')?.value||'0').replace(/,/g,''))||null,
+      status:'active'
+    }]);
+    if(cErr)console.error('Contract error:',cErr);
+  }
+  showToast(name+' added successfully ✓');
+  closeModal('new-acct-overlay');
+  loadAccounts();
+}
+let ANTHROPIC_API_KEY = '';
+let PANDADOC_API_KEY = '';
+let BROKER_INFO = {
+  name: 'Vic Prince',
+  phone: '(832) 555-0000',
+  email: 'vic@westcorenergy.com',
+  website: 'westcorenergy.com'
+};
+
+function saveApiKey() { saveAllSettings(); }
+
+function saveAllSettings() {
+  // Anthropic key
+  const antKey = document.getElementById('api-key-input').value.trim();
+  const antStatus = document.getElementById('api-key-status');
+  if (antKey) {
+    if (!antKey.startsWith('sk-ant-')) {
+      antStatus.style.display='block';antStatus.style.background='#fff1f1';antStatus.style.color='#991b1b';antStatus.style.border='1px solid #fca5a5';antStatus.textContent='Invalid Anthropic key format.';
+    } else {
+      ANTHROPIC_API_KEY=antKey;
+      antStatus.style.display='block';antStatus.style.background='#f0fdf4';antStatus.style.color='#16a34a';antStatus.style.border='1px solid #bbf7d0';antStatus.textContent='✓ Anthropic key saved.';
+    }
+  }
+  // PandaDoc key
+  const pdKey = document.getElementById('pandadoc-key-input').value.trim();
+  const pdStatus = document.getElementById('pandadoc-key-status');
+  if (pdKey) {
+    PANDADOC_API_KEY = pdKey;
+    pdStatus.style.display='block';pdStatus.style.background='#f0fdf4';pdStatus.style.color='#16a34a';pdStatus.style.border='1px solid #bbf7d0';pdStatus.textContent='✓ PandaDoc key saved. Ready to send proposals.';
+  }
+  // Broker info
+  BROKER_INFO.name = document.getElementById('broker-name').value || BROKER_INFO.name;
+  BROKER_INFO.phone = document.getElementById('broker-phone').value || BROKER_INFO.phone;
+  BROKER_INFO.email = document.getElementById('broker-email').value || BROKER_INFO.email;
+  BROKER_INFO.website = document.getElementById('broker-website').value || BROKER_INFO.website;
+
+  setTimeout(() => closeModal('settings-overlay'), 1200);
+  showToast('Settings saved ✓');
+}
+
+async function sendViaPandaDoc(clientName, clientEmail, proposalHTML) {
+  if (!PANDADOC_API_KEY) {
+    showToast('Add your PandaDoc API key in ⚙️ Settings first.');
+    return;
+  }
+  showToast('Sending to PandaDoc...');
+  try {
+    // Create document from HTML content
+    const response = await fetch('https://api.pandadoc.com/public/v1/documents', {
+      method: 'POST',
+      headers: {
+        'Authorization': `API-Key ${PANDADOC_API_KEY}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        name: `Energy Proposal — ${clientName}`,
+        recipients: [{ email: clientEmail, first_name: clientName, role: 'Client' }],
+        content: [{ type: 'text', data: proposalHTML }],
+        tags: ['westcor-energy', 'proposal']
+      })
+    });
+    const data = await response.json();
+    if (data.id) {
+      showToast(`✓ Proposal sent to ${clientEmail} via PandaDoc!`);
+    } else {
+      showToast('PandaDoc error — check your API key.');
+    }
+  } catch(err) {
+    showToast('Could not connect to PandaDoc.');
+  }
+}
+
+function populateStartMonths() {
+  const sel=document.getElementById('p-startmonth');if(!sel)return;
+  const months=['January','February','March','April','May','June','July','August','September','October','November','December'];
+  const now=new Date();sel.innerHTML='<option value="">— Select —</option>';
+  for(let y=now.getFullYear();y<=now.getFullYear()+3;y++){
+    for(let m=0;m<12;m++){const opt=document.createElement('option');opt.value=`${y}-${String(m+1).padStart(2,'0')}`;opt.textContent=`${months[m]} ${y}`;sel.appendChild(opt);}
+  }
+}
+
+async function handleBillUpload(input) {
+  const file=input.files[0];if(!file)return;
+  if(!ANTHROPIC_API_KEY){showToast('Add your API key in Settings first.');input.value='';return;}
+  const overlay=document.getElementById('bill-parsing-overlay');
+  const statusEl=document.getElementById('bill-status');
+  const spinner=document.getElementById('bill-spinner');
+  overlay.style.display='flex';
+  const spinFrames=['⚡','🔆','💡','🔆'];let si=0;
+  const spinInterval=setInterval(()=>{spinner.textContent=spinFrames[si++%spinFrames.length];},400);
+  try {
+    const base64=await new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result.split(',')[1]);r.onerror=rej;r.readAsDataURL(file);});
+    const isPDF=file.type==='application/pdf';
+    statusEl.textContent='Analyzing bill with AI...';
+    const response=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':ANTHROPIC_API_KEY,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,messages:[{role:'user',content:[{type:isPDF?'document':'image',source:{type:'base64',media_type:file.type,data:base64}},{type:'text',text:'Extract zip, commodity, state, annual_volume, utility, load_profile from this bill. Return ONLY valid JSON, no markdown.'}]}]})});
+    const data=await response.json();
+    const text=data.content?.find(b=>b.type==='text')?.text||'{}';
+    const parsed=JSON.parse(text.replace(/```json|```/g,'').trim());
+    if(parsed.zip)document.getElementById('p-zip').value=parsed.zip;
+    if(parsed.commodity)document.getElementById('p-commodity').value=parsed.commodity;
+    if(parsed.state)setSelectByText('p-state',parsed.state);
+    if(parsed.annual_volume)document.getElementById('p-volume').value=Math.round(parsed.annual_volume);
+    if(parsed.utility)setSelectByText('p-utility',parsed.utility);
+    clearInterval(spinInterval);overlay.style.display='none';input.value='';
+    showToast('✓ Bill parsed — form auto-populated!');
+  } catch(err){clearInterval(spinInterval);overlay.style.display='none';input.value='';showToast('Could not read bill. Please fill in manually.');}
+}
+
+function setSelectByText(id,text){
+  if(!text)return;const sel=document.getElementById(id);if(!sel)return;
+  const lower=text.toLowerCase();
+  for(const opt of sel.options){if(opt.textContent.toLowerCase().includes(lower)||lower.includes(opt.textContent.toLowerCase())){sel.value=opt.value;return;}}
+}
+
+const BASE_RATES=[
+  {name:'APG&E',cls:'l-apge',rates:[0.07464,0.07728,0.07595,0.07644,0.07761,null]},
+  {name:'ENGIE',cls:'l-engie',rates:[0.07441,0.07716,0.07521,0.07435,null,null]},
+  {name:'Gexa Energy',cls:'l-gexa',rates:[0.07087,0.07416,0.07200,0.07300,null,null]},
+  {name:'Hudson Energy',cls:'l-hudson',rates:[0.07800,0.08200,0.08100,0.08200,0.08300,0.08300]},
+  {name:'NRG',cls:'l-nrg',rates:[0.06976,0.06966,0.07061,0.07093,null,null]},
+  {name:'Freepoint',cls:'l-fp',rates:[0.08474,0.08691,0.08463,0.08626,null,null]},
+];
+const TERMS=[12,18,24,36,48,60];
+
+function recalcRates(){
+  const fee=parseFloat(document.getElementById('p-brokerfee').value)||0;
+  const tbody=document.getElementById('rates-tbody');if(!tbody)return;
+  const bestPerTerm=TERMS.map((_,ti)=>{const vals=BASE_RATES.map(s=>s.rates[ti]).filter(v=>v!==null);return vals.length?Math.min(...vals)+fee:null;});
+  tbody.innerHTML=BASE_RATES.map(supplier=>{
+    const cells=supplier.rates.map((base,ti)=>{
+      if(base===null)return'<td><span class="r-empty">—</span></td>';
+      const adjusted=base+fee;const display='$'+adjusted.toFixed(5);
+      const isBest=adjusted===bestPerTerm[ti];
+      return`<td><span class="${isBest?'rate r-best':'rate r-default'}" onclick="showToast('${supplier.name} ${TERMS[ti]}-mo @ ${display} selected')">${display}</span></td>`;
+    }).join('');
+    return`<tr><td><div class="sup-cell"><span class="${supplier.cls}">${supplier.name}</span></div></td>${cells}</tr>`;
+  }).join('');
+}
+
+function resetPricingForm(){
+  ['p-zip','p-volume','p-brokerfee'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('p-commodity').value='electricity';
+  document.getElementById('p-state').value='Texas';
+  document.getElementById('p-utility').value='CenterPoint Energy';
+  document.getElementById('p-zone').value='Houston';
+  recalcRates();showToast('Form reset.');
+}
+
+function switchAcctTab(tab){
+  document.querySelectorAll('.acct-tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.acct-panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById('acct-panel-'+tab).classList.add('active');
+  const idx={all:0,expiring:1};
+  document.querySelectorAll('.acct-tab')[idx[tab]].classList.add('active');
+}
+
+const ZIP_STATE={
+  '06':'Connecticut','07':'New Jersey','08':'New Jersey',
+  '10':'New York','11':'New York','12':'New York','13':'New York','14':'New York',
+  '15':'Pennsylvania','16':'Pennsylvania','17':'Pennsylvania','18':'Pennsylvania','19':'Pennsylvania',
+  '20':'Maryland','21':'Maryland','22':'Virginia','23':'Virginia','24':'Virginia',
+  '25':'West Virginia','26':'West Virginia','27':'North Carolina','28':'North Carolina','29':'South Carolina',
+  '30':'Georgia','31':'Georgia','32':'Florida','33':'Florida','34':'Florida',
+  '35':'Alabama','36':'Alabama','37':'Tennessee','38':'Tennessee','39':'Mississippi',
+  '40':'Kentucky','41':'Kentucky','42':'Kentucky','43':'Ohio','44':'Ohio','45':'Ohio',
+  '46':'Indiana','47':'Indiana','48':'Michigan','49':'Michigan',
+  '50':'Iowa','51':'Iowa','52':'Iowa','53':'Wisconsin','54':'Wisconsin','55':'Minnesota',
+  '56':'Minnesota','57':'South Dakota','58':'North Dakota','59':'Montana',
+  '60':'Illinois','61':'Illinois','62':'Illinois','63':'Missouri','64':'Missouri',
+  '65':'Missouri','66':'Kansas','67':'Kansas','68':'Nebraska','69':'Nebraska',
+  '70':'Louisiana','71':'Louisiana','72':'Arkansas','73':'Oklahoma','74':'Oklahoma',
+  '75':'Texas','76':'Texas','77':'Texas','78':'Texas','79':'Texas',
+  '80':'Colorado','81':'Colorado','82':'Wyoming','83':'Idaho','84':'Utah',
+  '85':'Arizona','86':'Arizona','87':'New Mexico','88':'New Mexico',
+  '89':'Nevada','90':'California','91':'California','92':'California','93':'California',
+  '94':'California','95':'California','96':'California','97':'Oregon','98':'Washington','99':'Washington',
+};
+
+function zipToState(zip){
+  if(!zip||zip.length<2)return null;
+  return ZIP_STATE[zip.slice(0,2)]||null;
+}
+
+document.addEventListener('DOMContentLoaded',async()=>{
+  populateStartMonths();recalcRates();
+  document.getElementById('p-zip').addEventListener('input',function(){
+    if(this.value.length>=3){
+      const state=zipToState(this.value);
+      if(state){setSelectByText('p-state',state);showToast('State auto-filled: '+state);}
+    }
+  });
+});
+
+async function submitAccessRequest(){
+  const name=document.getElementById('signup-name').value.trim();
+  const email=document.getElementById('signup-email').value.trim();
+  const phone=document.getElementById('signup-phone').value.trim();
+  const message=document.getElementById('signup-message').value.trim();
+  const status=document.getElementById('signup-status');
+  if(!name||!email){
+    status.style.display='block';status.style.background='#fff1f1';status.style.color='#991b1b';status.style.border='1px solid #fca5a5';
+    status.textContent='Name and email are required.';return;
+  }
+  // Save request to Supabase
+  if(sb){
+    await sb.from('access_requests').insert([{name,email,phone,message,requested_at:new Date().toISOString()}]);
+  }
+  status.style.display='block';status.style.background='#f0fdf4';status.style.color='#16a34a';status.style.border='1px solid #bbf7d0';
+  status.textContent='✓ Request submitted! We\'ll be in touch shortly.';
+  setTimeout(()=>{closeModal('signup-overlay');status.style.display='none';},2000);
+}
+
+async function doLogin(){
+  const e=document.getElementById('login-email').value.trim();
+  const p=document.getElementById('login-pass').value;
+  const err=document.getElementById('login-err');
+  err.style.display='none';
+  const{data,error}=await sb.auth.signInWithPassword({email:e,password:p});
+  if(error){
+    err.textContent='Incorrect email or password.';
+    err.style.display='block';
+    setTimeout(()=>err.style.display='none',3000);
+    return;
+  }
+  document.getElementById('login-screen').classList.add('hidden');
+  document.getElementById('app').classList.add('visible');
+  const fullName=data.user.user_metadata?.full_name||data.user.email;
+  document.querySelector('.nav-right>span').textContent=fullName;
+  recalcRates();
+  loadAccounts();
+  loadProposals();
+  loadRatesFromDB();
+}
+document.addEventListener('keydown',e=>{if(e.key==='Enter')doLogin();});
+async function doLogout(){
+  await sb.auth.signOut();
+  document.getElementById('app').classList.remove('visible');
+  document.getElementById('login-screen').classList.remove('hidden');
+  document.getElementById('login-email').value='';
+  document.getElementById('login-pass').value='';
+}
+function showPage(id,btn){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
+  btn.classList.add('active');
+}
+function toggleEl(id){const el=document.getElementById(id);el.style.display=el.style.display==='none'?'':'none';}
+
+function openModal(id){
+  document.getElementById(id).classList.add('open');
+  if(id==='proposal-overlay') populateProposalRates();
+}
+
+function populateProposalRates(){
+  const fee=parseFloat(document.getElementById('p-brokerfee').value)||0;
+  const tbody=document.getElementById('proposal-rates-tbody');
+  if(!tbody)return;
+  const bestPerTerm=TERMS.map((_,ti)=>{const vals=BASE_RATES.map(s=>s.rates[ti]).filter(v=>v!==null);return vals.length?Math.min(...vals)+fee:null;});
+  tbody.innerHTML=BASE_RATES.map(supplier=>{
+    const cells=supplier.rates.map((base,ti)=>{
+      if(base===null)return`<td><span class="r-empty">—</span></td>`;
+      const adjusted=base+fee;
+      const isBest=adjusted===bestPerTerm[ti];
+      return`<td><span class="${isBest?'rate r-best':'rate r-default'}">$${adjusted.toFixed(5)}</span></td>`;
+    }).join('');
+    return`<tr><td class="cb-cell"><input type="checkbox" class="pcb"></td><td><div class="sup-cell"><span class="${supplier.cls}">${supplier.name}</span></div></td>${cells}</tr>`;
+  }).join('');
+}
+
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+
+function selectAllCb(){document.querySelectorAll('.pcb').forEach(c=>c.checked=true);showToast('All suppliers selected.');}
+
+function generateProposal(mode='preview'){
+  const checked=document.querySelectorAll('#proposal-rates-tbody .pcb:checked');
+  if(!checked.length){showToast('Select at least one supplier.');return;}
+
+  // Get client info
+  const clientSel=document.getElementById('prop-client');
+  const clientParts=(clientSel.value||'').split('|');
+  const clientName=clientSel.options[clientSel.selectedIndex].text;
+  const clientAddr=clientParts[1]||'—';
+  const clientUtil=clientParts[2]||document.getElementById('p-utility').value||'—';
+  const clientVol=clientParts[3]||document.getElementById('p-volume').value||'—';
+  const product=document.getElementById('prop-product').value||'Fixed (All In)';
+  const today=new Date().toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'});
+  const fee=parseFloat(document.getElementById('p-brokerfee').value)||0;
+
+  // Build selected supplier data
+  const rows=document.querySelectorAll('#proposal-rates-tbody tr');
+  const selectedSuppliers=[];
+  checked.forEach(cb=>{
+    const row=cb.closest('tr');
+    const idx=Array.from(rows).indexOf(row);
+    const supplier=BASE_RATES[idx];
+    if(!supplier)return;
+    const rates=supplier.rates.map((base,ti)=>base!==null?{term:TERMS[ti],rate:(base+fee).toFixed(5)}:null).filter(Boolean);
+    selectedSuppliers.push({name:supplier.name,rates});
+  });
+
+  // Build supplier HTML sections
+  const TERM_LABELS={12:'12 Months',18:'18 Months',24:'24 Months',36:'36 Months',48:'48 Months',60:'60 Months'};
+  const suppliersHTML=selectedSuppliers.map((s,si)=>{
+    // Find best rate per supplier
+    const supplierBestRate=Math.min(...s.rates.map(r=>parseFloat(r.rate)));
+    const rows=s.rates.map(r=>{
+      const isBest=parseFloat(r.rate)===supplierBestRate;
+      const annualCost=(parseFloat(r.rate)*parseFloat(clientVol.replace(/,/g,''))||0).toLocaleString('en-US',{style:'currency',currency:'USD',maximumFractionDigits:0});
+      return`<tr>
+        <td style="padding:12px;border-bottom:1px solid #f3f4f6;font-size:.88rem;font-weight:600;color:#374151;">${TERM_LABELS[r.term]||r.term+' Months'}</td>
+        <td style="padding:12px;border-bottom:1px solid #f3f4f6;font-family:'DM Mono',monospace;font-size:.92rem;font-weight:${isBest?'700':'500'};color:${isBest?'#16a34a':'#4b5563'};letter-spacing:.4px;">$${r.rate}</td>
+        <td style="padding:12px;border-bottom:1px solid #f3f4f6;font-size:.74rem;color:#b0b8c4;">${clientVol?'~'+annualCost+' / yr':''}</td>
+        <td style="padding:12px;border-bottom:1px solid #f3f4f6;">${isBest?'<span style="display:inline-flex;align-items:center;gap:4px;background:#f0fdf4;color:#16a34a;border:1px solid #bbf7d0;border-radius:20px;padding:2px 9px;font-size:.7rem;font-weight:700;">★ Best Rate</span>':''}</td>
+      </tr>`;
+    }).join('');
+    return`
+      <div style="margin-bottom:28px;">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px;padding-bottom:10px;border-bottom:2px solid #f3f4f6;">
+          <div style="font-size:1.05rem;font-weight:800;color:#1a1f2e;letter-spacing:-.3px;">${s.name}</div>
+          <div style="font-size:.75rem;background:#eff4ff;color:#1a5fd4;border-radius:4px;padding:2px 8px;font-weight:600;">${product}</div>
+        </div>
+        <table style="width:100%;border-collapse:collapse;">
+          <thead><tr>
+            <th style="padding:6px 12px;text-align:left;font-size:.68rem;text-transform:uppercase;letter-spacing:.8px;color:#9ca3af;font-weight:700;background:#f9fafb;">Term</th>
+            <th style="padding:6px 12px;text-align:left;font-size:.68rem;text-transform:uppercase;letter-spacing:.8px;color:#9ca3af;font-weight:700;background:#f9fafb;">Rate (per kWh)</th>
+            <th style="padding:6px 12px;text-align:left;font-size:.68rem;text-transform:uppercase;letter-spacing:.8px;color:#9ca3af;font-weight:700;background:#f9fafb;">Est. Annual Cost</th>
+            <th style="background:#f9fafb;"></th>
+          </tr></thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>
+      ${si<selectedSuppliers.length-1?'<hr style="border:none;border-top:1px solid #e5e7eb;margin:28px 0;">':''}`;
+  }).join('');
+
+  // Open proposal in new window
+  const w=window.open('','_blank');
+  w.document.write(`<!DOCTYPE html>
+<html><head>
+<meta charset="UTF-8">
+<title>Westcor Energy — Proposal for ${clientName}</title>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Inter',sans-serif;background:#f0f2f5;padding:40px 20px;}
+.page-wrap{max-width:720px;margin:0 auto;}
+.toolbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;}
+.toolbar h1{font-size:14px;color:#6b7280;font-weight:500;}
+.btn{padding:8px 18px;border-radius:6px;font-family:'Inter',sans-serif;font-size:13px;font-weight:600;cursor:pointer;border:none;}
+.btn-primary{background:#1B3A5C;color:#fff;}
+.btn-outline{background:#fff;color:#1B3A5C;border:1.5px solid #1B3A5C;margin-right:8px;}
+.proposal{background:#fff;border-radius:12px;box-shadow:0 4px 24px rgba(0,0,0,.10);overflow:hidden;}
+@media print{body{background:#fff;padding:0;}.toolbar{display:none;}.proposal{box-shadow:none;border-radius:0;}}
+</style>
+</head><body>
+<div class="page-wrap">
+  <div class="toolbar">
+    <h1>Proposal Preview — ${clientName}</h1>
+    <div>
+      <button class="btn btn-outline" onclick="window.print()">🖨 Print / Save PDF</button>
+      <button class="btn btn-primary" onclick="window.close()">✕ Close</button>
+    </div>
+  </div>
+  <div class="proposal">
+    <div style="background:#1B3A5C;padding:36px 44px;display:flex;justify-content:space-between;align-items:flex-start;">
+      <div>
+        <div style="font-family:'Instrument Serif',serif;font-size:1.6rem;color:#fff;letter-spacing:.3px;">Westcor Energy</div>
+        <div style="font-size:.65rem;color:rgba(255,255,255,.55);letter-spacing:2.5px;text-transform:uppercase;margin-top:3px;">Commercial Energy Services</div>
+      </div>
+      <div style="text-align:right;">
+        <div style="font-size:.7rem;text-transform:uppercase;letter-spacing:2px;color:rgba(255,255,255,.5);margin-bottom:4px;">New Contract Proposal</div>
+        <div style="font-size:.85rem;color:rgba(255,255,255,.85);font-weight:500;">${today}</div>
+      </div>
+    </div>
+    <div style="background:#f0f4f8;border-bottom:1px solid #e5e7eb;padding:18px 44px;display:flex;gap:40px;">
+      <div><div style="font-size:.65rem;text-transform:uppercase;letter-spacing:1.2px;color:#9ca3af;font-weight:600;margin-bottom:3px;">Prepared For</div><div style="font-size:.95rem;font-weight:600;color:#1a1f2e;">${clientName}</div></div>
+      <div><div style="font-size:.65rem;text-transform:uppercase;letter-spacing:1.2px;color:#9ca3af;font-weight:600;margin-bottom:3px;">Service Address</div><div style="font-size:.95rem;font-weight:600;color:#1a1f2e;">${clientAddr}</div></div>
+      <div><div style="font-size:.65rem;text-transform:uppercase;letter-spacing:1.2px;color:#9ca3af;font-weight:600;margin-bottom:3px;">Utility</div><div style="font-size:.95rem;font-weight:600;color:#1a1f2e;">${clientUtil}</div></div>
+      <div><div style="font-size:.65rem;text-transform:uppercase;letter-spacing:1.2px;color:#9ca3af;font-weight:600;margin-bottom:3px;">Annual Usage</div><div style="font-size:.95rem;font-weight:600;color:#1a1f2e;">${clientVol} kWh</div></div>
+    </div>
+    <div style="padding:36px 44px;">
+      <div style="font-size:.88rem;color:#6b7280;line-height:1.7;margin-bottom:32px;border-left:3px solid #1B3A5C;padding-left:16px;">
+        We have secured competitive fixed-rate offers on your behalf from multiple licensed retail energy providers. Rates below are all-inclusive and fixed for the full contract term — no hidden fees, no surprises.
+      </div>
+      ${suppliersHTML}
+      <div style="background:#f9fafb;border-radius:8px;padding:16px 20px;font-size:.8rem;color:#6b7280;line-height:1.7;margin-top:28px;">
+        <strong style="color:#374151;">Important:</strong> Rates are valid for <strong style="color:#374151;">24 hours</strong> from the date of this proposal. All rates are fixed all-inclusive and do not include applicable taxes. Contract start date is subject to utility enrollment timelines. To lock in your rate, sign and return this proposal.<br><br>
+        <strong style="color:#374151;">Next Steps:</strong> Once this proposal is signed, we will send over your official contract for final execution. Our team will guide you through the enrollment process from start to finish.
+      </div>
+    </div>
+    <div style="background:#1B3A5C;padding:24px 44px;display:flex;justify-content:space-between;align-items:center;">
+      <div style="font-family:'Instrument Serif',serif;font-size:1rem;color:#fff;">Westcor Energy</div>
+      <div style="display:flex;gap:24px;">
+        <div style="font-size:.8rem;color:rgba(255,255,255,.75);">📞 <strong style="color:#fff;">${BROKER_INFO.phone}</strong></div>
+        <div style="font-size:.8rem;color:rgba(255,255,255,.75);">✉ <strong style="color:#fff;">${BROKER_INFO.email}</strong></div>
+        <div style="font-size:.8rem;color:rgba(255,255,255,.75);">🌐 <strong style="color:#fff;">${BROKER_INFO.website}</strong></div>
+      </div>
+    </div>
+  </div>
+</div>
+</body></html>`);
+  w.document.close();
+  closeModal('proposal-overlay');
+
+  if(mode==='pandadoc'){
+    // Ask for client email then send via PandaDoc
+    const clientEmail=prompt(`Enter ${clientName}'s email address to send via PandaDoc:`);
+    if(clientEmail&&clientEmail.includes('@')){
+      sendViaPandaDoc(clientName, clientEmail, `Proposal for ${clientName} — ${today}`);
+    } else if(clientEmail){
+      showToast('Invalid email address.');
+    }
+  }
+}
+let toastTimer;
+function showToast(msg){
+  const t=document.getElementById('toast-el');
+  t.textContent=msg;t.classList.add('show');
+  clearTimeout(toastTimer);toastTimer=setTimeout(()=>t.classList.remove('show'),2800);
+}
+</script>
+</body>
+</html>
