@@ -315,11 +315,12 @@ tr:hover td { background:#f9fafb; }
 #page-calc .c-usage-field { display: flex; flex-direction: column; gap: 4px; }
 #page-calc .c-usage-field label { font-family: 'DM Mono', monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--ctext-muted); }
 #page-calc .c-usage-field input {
-  background: var(--cbg); border: 1px solid var(--cborder); color: var(--ctext);
+  background: var(--csurf2); border: 1px solid var(--cborder); color: #7aa8d4;
   font-family: 'DM Mono', monospace; font-size: 13px; padding: 8px 10px; border-radius: 2px;
-  outline: none; width: 100%; text-align: right; transition: border-color 0.2s;
+  outline: none; width: 100%; text-align: right; transition: border-color 0.2s, box-shadow 0.2s;
 }
-#page-calc .c-usage-field input:focus { border-color: var(--cgold); box-shadow: 0 0 0 2px var(--cgold-glow); }
+#page-calc .c-usage-field input:focus { border-color: var(--cgold); box-shadow: 0 0 0 2px var(--cgold-glow); color: #7aa8d4; }
+#page-calc .c-usage-field input::placeholder { color: var(--ctext-dim); }
 #page-calc .c-esiid-subtotal {
   display: flex; justify-content: flex-end; align-items: center; gap: 10px;
   margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--cborder);
@@ -381,7 +382,10 @@ tr:hover td { background:#f9fafb; }
 #page-calc .c-table-wrap tbody tr { border-bottom: 1px solid var(--cborder); transition: background 0.15s; }
 #page-calc .c-table-wrap tbody tr:last-child { border-bottom: none; }
 #page-calc .c-table-wrap tbody tr:hover { background: var(--csurf2); }
-#page-calc .c-table-wrap tbody td { padding: 12px 16px; font-family: 'DM Mono', monospace; font-size: 13px; text-align: right; color: var(--ctext); border-bottom: 1px solid var(--cborder); }
+#page-calc .c-table-wrap tbody tr:hover td { color: #4d7aa8; }
+#page-calc .c-table-wrap tbody tr:hover td:first-child { color: var(--ctext-muted); }
+#page-calc .c-table-wrap tbody tr:hover td.c-savings-cell { color: var(--cgold) !important; }
+#page-calc .c-table-wrap tbody td { padding: 12px 16px; font-family: 'DM Mono', monospace; font-size: 13px; text-align: right; color: #4d7aa8; border-bottom: 1px solid var(--cborder); }
 #page-calc .c-table-wrap tbody td:first-child { text-align: left; font-family: 'Inter', sans-serif; font-size: 13px; color: var(--ctext-muted); }
 #page-calc .c-savings-cell { color: var(--cgold) !important; font-weight: 500; }
 #page-calc .c-bar-cell { width: 90px; padding: 12px 16px !important; }
@@ -392,6 +396,7 @@ tr:hover td { background:#f9fafb; }
   border-top: 1px solid var(--cborder); background: var(--csurf2); font-weight: 500; color: var(--ctext) !important;
 }
 #page-calc .c-table-wrap tfoot td:first-child { text-align: left; font-family: 'Bebas Neue', sans-serif; font-size: 14px; letter-spacing: 0.08em; color: var(--ctext) !important; }
+#page-calc .c-table-wrap tr:hover td { background: transparent; }
 #page-calc .c-table-wrap tfoot .c-savings-cell { color: var(--cgold) !important; }
 #page-calc .c-emphasis-wrap {
   border: 1px solid var(--cgold); border-radius: 6px; padding: 20px; margin-bottom: 36px;
@@ -432,11 +437,59 @@ tr:hover td { background:#f9fafb; }
 #page-calc .c-print-header { display: none; }
 #page-calc .c-print-rates { display: none; }
 @media print {
+  @page { margin: 0; size: letter portrait; }
+
+  /* Kill all white backgrounds at root level */
+  html, body { background: #070d1a !important; margin: 0 !important; padding: 0 !important; }
+  body { background: #070d1a !important; }
+
+  /* Hide everything except the calc page */
   .topnav, #page-pricing, #page-proposals, #page-accounts, #page-reports { display: none !important; }
-  #page-calc { display: block !important; border: none; border-radius: 0; }
-  #page-calc .c-esiid-section, #page-calc .c-config-bar, #page-calc .c-footer .c-btn-group { display: none !important; }
-  #page-calc .c-print-header { display: flex !important; justify-content: space-between; align-items: center; border-bottom: 2px solid #D4AF37; padding-bottom: 12px; margin-bottom: 16px; }
-  #page-calc .c-print-rates { display: block !important; background: #0d1830; border: 1px solid #1e2f54; border-radius: 4px; padding: 14px 20px; margin-bottom: 18px; text-align: center; }
+  .main { padding: 0 !important; background: #070d1a !important; }
+  #app { background: #070d1a !important; }
+
+  /* Calc page reset */
+  #page-calc { display: block !important; border: none !important; border-radius: 0 !important; box-shadow: none !important; outline: none !important; background: #070d1a !important; }
+  #page-calc .calc-wrap { padding: 20px 24px !important; background: #070d1a !important; }
+
+  
+  #page-calc .c-esiid-section,
+  #page-calc .c-config-bar,
+  #page-calc .c-footer,
+  #page-calc .c-emphasis-wrap,
+  #page-calc .c-kpi-grid,
+  #page-calc .c-print-header,
+  #page-calc .c-print-rates,
+  #cMonthlyBreakdownHeader { display: none !important; }
+
+  #page-calc .c-combined-banner { margin-bottom: 8px !important; margin-top: -6px !important; padding: 10px 16px !important; }
+
+  /* Chart — shorter height */
+  #page-calc .c-chart-wrap { display: block !important; margin-bottom: 14px !important; padding: 14px 16px !important; }
+  #page-calc .c-chart-bars { height: 160px !important; }
+  #page-calc .c-chart-amount { font-size: 9px !important; }
+  #page-calc .c-chart-month { font-size: 9px !important; }
+
+  /* Show rates bar only, not the ENERGY COST SAVINGS ANALYSIS header */
+  #page-calc .c-print-rates { display: block !important; background: #0d1830 !important; border: 1px solid #1e2f54; border-radius: 4px; padding: 14px 20px; margin-bottom: 20px; text-align: center; }
+
+  /* Combined banner */
+  #page-calc .c-combined-banner { margin-bottom: 16px !important; padding: 12px 18px !important; }
+
+  /* Year cards — all on one line, compact */
+  #page-calc .c-multiyear-grid { display: flex !important; flex-wrap: nowrap !important; gap: 8px !important; margin-bottom: 14px !important; }
+  #page-calc .c-year-card { flex: 1 !important; min-width: 0 !important; padding: 12px 8px !important; background: #0d1830 !important; }
+  #page-calc .c-year-card.active { background: #111f3c !important; }
+  #page-calc .c-year-card-savings { font-size: 20px !important; }
+  #page-calc .c-year-card-label { font-size: 9px !important; letter-spacing: 0.06em !important; }
+  #page-calc .c-year-card-pct { font-size: 9px !important; }
+
+  /* Multi-year table compact */
+  #page-calc .c-table-wrap { background: #0d1830 !important; border-color: #1e2f54 !important; margin-bottom: 0 !important; }
+  #page-calc .c-table-wrap thead th { background: #111f3c !important; padding: 9px 14px !important; }
+  #page-calc .c-table-wrap tbody td { padding: 10px 14px !important; font-size: 12px !important; }
+  #page-calc .c-table-wrap tfoot td { padding: 10px 14px !important; font-size: 12px !important; }
+
   * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
 }
 </style>
@@ -496,7 +549,7 @@ tr:hover td { background:#f9fafb; }
       <button class="nav-tab" onclick="showPage('proposals',this)">Proposals</button>
       <button class="nav-tab" onclick="showPage('accounts',this)">Accounts</button>
       <button class="nav-tab" onclick="showPage('reports',this)">Reports</button>
-      <button class="nav-tab" onclick="showPage('calc',this)">💰 Savings Calc</button>
+      <button class="nav-tab" onclick="showPage('calc',this)">Savings Calculator</button>
     </div>
     <div class="nav-right">
       <span>Vic Prince</span>
@@ -869,7 +922,7 @@ tr:hover td { background:#f9fafb; }
         <div class="c-chart-wrap"><div class="c-chart-bars" id="cChartBars"></div></div>
 
         <!-- Monthly Table -->
-        <div class="c-section-header"><div class="c-section-title">Monthly Breakdown — Year 1</div><div class="c-section-line"></div></div>
+        <div class="c-section-header" id="cMonthlyBreakdownHeader"><div class="c-section-title">Monthly Breakdown — Year 1</div><div class="c-section-line"></div></div>
         <div class="c-emphasis-wrap">
           <div class="c-table-wrap">
             <table>
@@ -1367,7 +1420,7 @@ function cRenderPanels(){
     let usageInputs='';
     C_MONTHS.forEach((m,mi)=>{usageInputs+=`<div class="c-usage-field"><label>${m}</label><input type="number" id="cu_${idx}_${mi}" value="${e.usage[mi]||''}" placeholder="0" min="0" step="1" oninput="cOnUsageInput(${idx},${mi},this.value)"></div>`;});
     const total=e.usage.reduce((a,b)=>a+b,0);
-    panel.innerHTML=`<div class="c-esiid-meta"><div class="c-esiid-meta-field"><label>ESIID Number</label><input type="text" id="cEsiidNum_${idx}" value="${e.esiidNum}" placeholder="Enter ESIID Number" oninput="cOnEsiidNumInput(${idx},this.value)"></div><div class="c-esiid-meta-field"><label>Location / Label (optional)</label><input type="text" placeholder="e.g. Main Building, Warehouse..." oninput="cOnEsiidLabelInput(${idx},this.value)"></div></div><div class="c-paste-wrap"><span class="c-paste-label">Paste kWh</span><textarea id="cPaste_${idx}" class="c-paste-box" rows="1" onpaste="cOnPasteUsage(event,${idx})" oninput="cOnPasteUsage(event,${idx})" placeholder="Jan–Dec separated by tab or comma"></textarea><span class="c-paste-status" id="cPasteStatus_${idx}"></span></div><div class="c-usage-grid">${usageInputs}</div><div class="c-esiid-subtotal"><span class="c-esiid-subtotal-label">Annual Total</span><span class="c-esiid-subtotal-val" id="cSub_${idx}">${cFmtNum(total)}</span><span class="c-esiid-subtotal-unit">kWh</span></div>`;
+    panel.innerHTML=`<div class="c-esiid-meta"><div class="c-esiid-meta-field"><label>ESIID Number</label><input type="text" id="cEsiidNum_${idx}" value="${e.esiidNum}" placeholder="Enter ESIID Number" oninput="cOnEsiidNumInput(${idx},this.value)" onpaste="cOnEsiidNumPaste(${idx},event)"></div><div class="c-esiid-meta-field"><label>Location / Label (optional)</label><input type="text" placeholder="e.g. Main Building, Warehouse..." oninput="cOnEsiidLabelInput(${idx},this.value)"></div></div><div class="c-paste-wrap"><span class="c-paste-label">Paste kWh</span><textarea id="cPaste_${idx}" class="c-paste-box" rows="1" onpaste="cOnPasteUsage(event,${idx})" oninput="cOnPasteUsage(event,${idx})" placeholder="Jan–Dec separated by tab or comma"></textarea><span class="c-paste-status" id="cPasteStatus_${idx}"></span></div><div class="c-usage-grid">${usageInputs}</div><div class="c-esiid-subtotal"><span class="c-esiid-subtotal-label">Annual Total</span><span class="c-esiid-subtotal-val" id="cSub_${idx}">${cFmtNum(total)}</span><span class="c-esiid-subtotal-unit">kWh</span></div>`;
     container.appendChild(panel);
   });
 }
@@ -1383,6 +1436,22 @@ function cOnUsageInput(idx,month,val){
 }
 
 function cOnEsiidNumInput(idx,val){cEsiids[idx].esiidNum=val;if(!cEsiids[idx].customLabel){cEsiids[idx].name=val||('ESIID '+(idx+1));}cRenderTabs();}
+
+function cOnEsiidNumPaste(idx,e){
+  const text=e.clipboardData&&e.clipboardData.getData('text')||'';
+  const entries=text.split(/[\n\r]+/).map(s=>s.trim()).filter(s=>s.length>0);
+  if(entries.length<=1)return;
+  e.preventDefault();
+  cEsiids[idx].esiidNum=entries[0];
+  if(!cEsiids[idx].customLabel)cEsiids[idx].name=entries[0];
+  entries.slice(1).forEach(num=>{
+    const newE=cCreateEsiid(num,num);newE.esiidNum=num;newE.name=num;cEsiids.push(newE);
+  });
+  cActiveTab=idx;cRenderAll();cCalculate();
+  const firstEl=document.getElementById('cEsiidNum_'+idx);if(firstEl)firstEl.value=entries[0];
+  entries.slice(1).forEach((num,i)=>{const el=document.getElementById('cEsiidNum_'+(idx+1+i));if(el)el.value=num;});
+  showToast(`✓ ${entries.length} ESIIDs loaded`);
+}
 function cOnEsiidLabelInput(idx,val){cEsiids[idx].customLabel=val.length>0;cEsiids[idx].name=val||cEsiids[idx].esiidNum||('ESIID '+(idx+1));cRenderTabs();}
 
 function cOnPasteUsage(e,idx){
@@ -1486,8 +1555,10 @@ function cCheckSaved(){if(localStorage.getItem('wc_calcSession'))document.getEle
 function cDownloadPDF(){
   const nameEl=document.getElementById('cProspectName');const name=nameEl.value.trim();
   if(!name){nameEl.style.borderColor='#ef4444';nameEl.style.boxShadow='0 0 0 3px rgba(239,68,68,0.2)';nameEl.focus();nameEl.placeholder='Required before downloading...';setTimeout(()=>{nameEl.style.borderColor='';nameEl.style.boxShadow='';nameEl.placeholder='Enter Business Name';},3000);return;}
-  const orig=document.title;document.title=`Energy Savings Analysis - ${name}`;
-  document.getElementById('cPrintName').textContent=name;document.getElementById('cPrintDate').textContent='Generated: '+new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'});
+  const orig=document.title;
+  document.title=`Energy Savings Analysis - ${name}`;
+  document.getElementById('cPrintName').textContent=name;
+  document.getElementById('cPrintDate').textContent='Generated: '+new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'});
   const cr=parseFloat(document.getElementById('cCurrentRate').value)||0;
   document.getElementById('cPrintCurrentRate').textContent='$'+cr.toFixed(4);
   document.getElementById('cPrintRate12').textContent='$'+(parseFloat(document.getElementById('cRate12').value)||0).toFixed(4);
@@ -1495,7 +1566,8 @@ function cDownloadPDF(){
   document.getElementById('cPrintRate36').textContent='$'+(parseFloat(document.getElementById('cRate36').value)||0).toFixed(4);
   document.getElementById('cPrintRate48').textContent='$'+(parseFloat(document.getElementById('cRate48').value)||0).toFixed(4);
   document.getElementById('cPrintRate60').textContent='$'+(parseFloat(document.getElementById('cRate60').value)||0).toFixed(4);
-  window.print();setTimeout(()=>{document.title=orig;},1000);
+  window.print();
+  setTimeout(()=>{document.title=orig;},1000);
 }
 </script>
 </body>
